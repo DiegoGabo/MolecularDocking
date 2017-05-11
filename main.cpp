@@ -2,6 +2,7 @@
 #include <vector>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
+#include <math.h>
 
 using namespace std;
 using namespace boost::numeric::ublas;
@@ -18,6 +19,20 @@ public:
 		this->y = y;
 		this->z = z;
 	}
+	float getX()
+	{
+		return x;
+	}
+
+	float getY()
+	{
+		return y;
+	}
+
+	float getZ()
+	{
+		return z;
+	}
 
 	string toString()
 	{
@@ -33,7 +48,7 @@ public:
 		homogeneusCoordinatesPoint(2, 0) = z;
 		homogeneusCoordinatesPoint(3, 0) = 1;
 
-		homogeneusCoordinatesPoint = prod (transformationMatrix, homogeneusCoordinatesPoint);
+		homogeneusCoordinatesPoint = prod(transformationMatrix, homogeneusCoordinatesPoint);
 		this->x = homogeneusCoordinatesPoint(0, 0) / homogeneusCoordinatesPoint(3, 0);
 		this->y = homogeneusCoordinatesPoint(1, 0) / homogeneusCoordinatesPoint(3, 0);
 		this->z = homogeneusCoordinatesPoint(2, 0) / homogeneusCoordinatesPoint(3, 0);
@@ -63,6 +78,41 @@ public:
 	}
 };
 
+matrix<double> createRotationMatrix(int angle, Atom first, Atom second)
+{
+	matrix<double>  rotationMatrix(4, 4);
+	float u, v, w, L, u2, v2, w2, theta;
+	u = second.getX() - first.getX();
+	v = second.getY() - first.getY();
+	w = second.getZ() - first.getZ();
+	u2 = u * u;
+	v2 = v * v;
+	w2 = w * w;
+	L = u2 + v2 + w2;
+	theta = angle * M_PI / 180.0;
+
+	rotationMatrix(0, 0) = (u2 + (v2 + w2) * cos(theta)) / L;
+	rotationMatrix(0, 1) = (u * v * (1 - cos(theta)) - w * sqrt(L) * sin(theta)) / L;
+	rotationMatrix(0, 2) = (u * w * (1 - cos(theta)) + v * sqrt(L) * sin(theta)) / L;
+	rotationMatrix(0, 3) = 0.0;
+
+	rotationMatrix(1, 0) = (u * v * (1 - cos(theta)) + w * sqrt(L) * sin(theta)) / L;
+	rotationMatrix(1, 1) = (v2 + (u2 + w2) * cos(theta)) / L;
+	rotationMatrix(1, 2) = (v * w * (1 - cos(theta)) - u * sqrt(L) * sin(theta)) / L;
+	rotationMatrix(1, 3) = 0.0;
+
+	rotationMatrix(2, 0) = (u * w * (1 - cos(theta)) - v * sqrt(L) * sin(theta)) / L;
+	rotationMatrix(2, 1) = (v * w * (1 - cos(theta)) + u * sqrt(L) * sin(theta)) / L;
+	rotationMatrix(2, 2) = (w2 + (u2 + v2) * cos(theta)) / L;
+	rotationMatrix(2, 3) = 0.0;
+
+	rotationMatrix(3, 0) = 0.0;
+	rotationMatrix(3, 1) = 0.0;
+	rotationMatrix(3, 2) = 0.0;
+	rotationMatrix(3, 3) = 1.0;
+
+	return rotationMatrix;
+}
 int main()
 {
 
@@ -97,26 +147,20 @@ int main()
 		pointsToRotate.at(1) = a6;
 		pointsToRotate.at(2) = a7;
 
-		std:cout << "\n\nI want to rotate the following points of " << std::to_string(angle) << " degree:";
+	std:cout << "\n\nI want to rotate the following points of " << std::to_string(angle) << " degree:";
 		for (Atom point : pointsToRotate)
 		{
 			std::cout << point.toString();
 		}
 
-		//transformation matrix used as example
-		matrix<double>  transformationMatrix(4, 4);
-		transformationMatrix(0, 0) = 1; transformationMatrix(0, 1) = 0; transformationMatrix(0, 2) = 0; transformationMatrix(0, 3) = 1;
-		transformationMatrix(1, 0) = 0; transformationMatrix(1, 1) = 1; transformationMatrix(1, 2) = 0; transformationMatrix(1, 3) = 1;
-		transformationMatrix(2, 0) = 0; transformationMatrix(2, 1) = 0; transformationMatrix(2, 2) = 1; transformationMatrix(2, 3) = 1;
-		transformationMatrix(3, 0) = 0; transformationMatrix(3, 1) = 0; transformationMatrix(3, 2) = 0; transformationMatrix(3, 3) = 1;
+		matrix<float> rotationMatrix = createRotationMatrix(angle, a3, a4);
+		std::cout << std::endl << rotationMatrix << std::endl;
 
-		std::cout << std::endl << transformationMatrix << std::endl;
-		
-		//the for applies the rotation to all points in pointsToRotate
+		//the for loop applies the rotation to all points in pointsToRotate
 		int i = 0;
 		for (Atom point : pointsToRotate)
 		{
-			point.transform(transformationMatrix);
+			point.transform(rotationMatrix);
 			pointsRotated.at(i) = point;
 			i++;
 		}
