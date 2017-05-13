@@ -1,8 +1,9 @@
 #include <iostream>
 #include <vector>
-#include <boost/numeric/ublas/matrix.hpp>
+#include <matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <math.h>
+#include "basicgraph.h"
 
 using namespace std;
 using namespace boost::numeric::ublas;
