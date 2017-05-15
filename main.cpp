@@ -51,9 +51,18 @@ public:
 
 class Molecule
 {
+private:
 	std::vector<Atom> atoms;
 	std::vector<std::list<int>> links;
-
+	int getAtomIndex(Atom atom)
+	{
+		for (int i = 0; i<atoms.size(); i++)
+		{
+			Atom a = atoms.at(i);
+			if (a.getX() == atom.getX() && a.getX() == atom.getX() && a.getX() == atom.getX())
+				return i;
+		}
+	}
 
 public:
 
@@ -96,6 +105,15 @@ public:
 		return rotators;
 	}
 
+	std::vector<int> getSuccessor(int atom)
+	{
+		std::vector<int> successors;
+		std::list<int> link = links.at(atom);
+		for (std::list<int>::iterator it = link.begin(); it != link.end(); ++it)
+			successors.push_back(*it);
+		return successors;
+	}
+
 	string toString()
 	{
 		//creates a string with the list of atoms
@@ -108,20 +126,50 @@ public:
 
 		//creates a string with the structure of the graph
 		molecule += "\n\nGraph structure:";
-		int atom = 0;
-		for (std::list<int> link : links)
+		for (int atom = 0; atom < links.size(); atom++)
 		{
-			molecule += "\nAtom:  ";
+			std::vector<int> successors = getSuccessor(atom);
+			molecule += "\nAtom ";
 			molecule += std::to_string(atom);
 			molecule += " linked to: ";
-			for (std::list<int>::iterator it = link.begin(); it != link.end(); ++it)
+			for (int succ : successors)
 			{
-				molecule += std::to_string(*it);
+				molecule += std::to_string(succ);
 				molecule += ", ";
 			}
-			atom++;
 		}
 		return molecule;
+	}
+
+	std::vector<Atom> getAllSuccessors(Atom firstAtom, Atom secondAtom)
+	{
+		int first = getAtomIndex(firstAtom);
+		int second = getAtomIndex(secondAtom);
+
+		std::vector<int> atomsToBeConsidered;
+		std::vector<int> successorsIndex;
+		std::vector<Atom> successors;
+
+		for (int a : getSuccessor(second))
+			atomsToBeConsidered.push_back(a);
+
+		while (!atomsToBeConsidered.empty())
+		{
+			int nextAtom = atomsToBeConsidered.back();
+			atomsToBeConsidered.pop_back();
+			if (std::find(successorsIndex.begin(), successorsIndex.end(), nextAtom) == successorsIndex.end() &&
+				nextAtom != first && nextAtom != second)
+			{
+				successorsIndex.push_back(nextAtom);
+				for (int a : getSuccessor(nextAtom))
+					atomsToBeConsidered.push_back(a);
+			}
+		}
+
+		for (int a : successorsIndex)
+			successors.push_back(atoms.at(a));
+
+		return successors;
 	}
 };
 
@@ -207,38 +255,42 @@ int main()
 		rotatorNumber++;
 	}
 
-	//cicle in which all rotations are performed
-	for (int angle = 0; angle<360; angle += 15)
+	for (std::pair<Atom, Atom> rotator : rotators)
 	{
-		//Molecule moleculeToRotate = new Molecule(molecule);
-		std::vector<Atom> pointsToRotate(3, a5);
-		std::vector<Atom> pointsRotated(3, a5);
-		pointsToRotate.at(0) = a5;
-		pointsToRotate.at(1) = a6;
-		pointsToRotate.at(2) = a7;
-		cout << "\n\nI want to rotate the following points of " << std::to_string(angle) << " degree:";
-
-		for (Atom point : pointsToRotate)
+		std::cout << "\n\nI Consider the rotator " << rotator.first.toString() << rotator.second.toString();
+		//cicle in which all rotations are performed
+		for (int angle = 0; angle<360; angle += 15)
 		{
-			std::cout << point.toString();
-		}
+			//Molecule moleculeToRotate = new Molecule(molecule);
+			std::vector<Atom> pointsToRotate;
+			std::vector<Atom> pointsRotated;
 
-		matrix<float> rotationMatrix = createRotationMatrix(angle, a3, a4);
-		cout << std::endl << rotationMatrix << std::endl;
+			pointsToRotate = molecule.getAllSuccessors(rotator.first, rotator.second);
 
-		//the for loop applies the rotation to all points in pointsToRotate
-		int i = 0;
-		for (Atom point : pointsToRotate)
-		{
-			point.transform(rotationMatrix);
-			pointsRotated.at(i) = point;
-			i++;
-		}
+			cout << "\nI want to rotate the following points of " << std::to_string(angle) << " degree:";
 
-		cout << "\nAfter rotation:";
-		for (Atom point : pointsRotated)
-		{
-			cout << point.toString();
+			for (Atom point : pointsToRotate)
+			{
+				std::cout << std::endl;
+				std::cout << point.toString();
+			}
+
+			matrix<float> rotationMatrix = createRotationMatrix(angle, a3, a4);
+			cout << std::endl << rotationMatrix << std::endl;
+
+			//the for loop applies the rotation to all points in pointsToRotate
+			for (Atom point : pointsToRotate)
+			{
+				point.transform(rotationMatrix);
+				pointsRotated.push_back(point);
+			}
+
+			cout << "\nAfter rotation:";
+			for (Atom point : pointsRotated)
+			{
+				cout << point.toString();
+			}
 		}
 	}
+
 }
