@@ -1,14 +1,12 @@
 #include <iostream>
 #include <vector>
+#include <list>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <math.h>
 using namespace std;
 using namespace boost::numeric::ublas;
 
-/*
-Class that represent a single atom
-*/
 class Atom
 {
 	float x, y, z;
@@ -33,7 +31,7 @@ public:
 	}
 	string toString()
 	{
-		return "\nx = " + std::to_string(x) + " y = " + std::to_string(y) + " z = " + std::to_string(z);
+		return "x = " + std::to_string(x) + " y = " + std::to_string(y) + " z = " + std::to_string(z);
 	}
 
 	void transform(matrix<float>  transformationMatrix)
@@ -50,49 +48,88 @@ public:
 		this->z = homogeneusCoordinatesPoint(2, 0) / homogeneusCoordinatesPoint(3, 0);
 	}
 };
+
 class Molecule
 {
 	std::vector<Atom> atoms;
-	bool adiacencyMatrix[7][7];
-	public:
-		Molecule(std::vector<Atom> atoms)
-		{
-			this->atoms = atoms;
-			for (unsigned i = 0; i < 7; ++i)
-				for (unsigned j = 0; j < 7; ++j)
-					adiacencyMatrix[i][j] = false;
-		}
+	std::vector<std::list<int>> links;
 
-		void setEdge(int src, int dest)
-		{
-			adiacencyMatrix[src][dest] = true;
-			adiacencyMatrix[dest][src] = true;
-		}
 
-		string toString()
+public:
+
+	void addAtom(Atom atom)
+	{
+		atoms.push_back(atom);
+		std::list<int> link;
+		links.push_back(link);
+	}
+
+	void setEdge(int src, int dest)
+	{
+		links.at(src).push_back(dest);
+		links.at(dest).push_back(src);
+	}
+
+	std::vector<std::pair<Atom, Atom>> getRotators()
+	{
+		std::vector<std::pair<Atom, Atom>> rotators;
+		std::vector<Atom>::iterator firstAtomIt = atoms.begin();
+		std::vector<std::list<int>>::iterator firstListElement = links.begin();
+
+		for (std::list<int> link : links)
 		{
-			string molecule = "The molecule has the following atoms";
-			for (Atom atom : atoms)
+			for (std::list<int>::iterator it = link.begin(); it != link.end(); ++it)
 			{
-				molecule += atom.toString();
-			}
-			molecule += "\nGraph structure:\n";
+				std::vector<Atom>::iterator secondAtomIt = atoms.begin();
 
-			for (unsigned i = 0; i < 7; ++i)
-				for (unsigned j = 0; j < 7; ++j)
-					if (adiacencyMatrix[i][j] == true)
-					{
-						molecule += "\n\nvertex ";
-						molecule += atoms.at(i).toString();
-						molecule += "\nlinked to";
-						molecule += atoms.at(j).toString();
-					}
+				bool isRotator = (link.size() > 1) && ((*(firstListElement + *it)).size() > 1);
+				if (isRotator)/*link non finali e non in un ciclo*/
+				{
+					secondAtomIt += *it;
+					std::pair<Atom, Atom> rotator = std::make_pair(*firstAtomIt, *secondAtomIt);
+					rotators.push_back(rotator);
+				}
+			}
+			firstAtomIt += 1;
+		}
+
+		return rotators;
+	}
+
+	string toString()
+	{
+		//creates a string with the list of atoms
+		string molecule = "The molecule has the following atoms";
+		for (Atom atom : atoms)
+		{
+			molecule += "\n";
+			molecule += atom.toString();
+		}
+
+		//creates a string with the structure of the graph
+		molecule += "\n\nGraph structure:";
+		int atom = 0;
+		for (std::list<int> link : links)
+		{
+			molecule += "\nAtom:  ";
+			molecule += std::to_string(atom);
+			molecule += " linked to: ";
+			for (std::list<int>::iterator it = link.begin(); it != link.end(); ++it)
+			{
+				molecule += std::to_string(*it);
+				molecule += ", ";
+			}
+			atom++;
+		}
 		return molecule;
 	}
 };
+
 matrix<float> createRotationMatrix(int angle, Atom first, Atom second)
 {
 	matrix<float>  rotationMatrix(4, 4);
+
+	//create the rotation matrix
 	float u, v, w, L, u2, v2, w2, theta;
 	u = second.getX() - first.getX();
 	v = second.getY() - first.getY();
@@ -102,6 +139,8 @@ matrix<float> createRotationMatrix(int angle, Atom first, Atom second)
 	w2 = w * w;
 	L = u2 + v2 + w2;
 	theta = angle * M_PI / 180.0;
+
+	//assign to each element of the matrix the proper value
 	rotationMatrix(0, 0) = (u2 + (v2 + w2) * cos(theta)) / L;
 	rotationMatrix(0, 1) = (u * v * (1 - cos(theta)) - w * sqrt(L) * sin(theta)) / L;
 	rotationMatrix(0, 2) = (u * w * (1 - cos(theta)) + v * sqrt(L) * sin(theta)) / L;
@@ -118,12 +157,18 @@ matrix<float> createRotationMatrix(int angle, Atom first, Atom second)
 	rotationMatrix(3, 1) = 0.0;
 	rotationMatrix(3, 2) = 0.0;
 	rotationMatrix(3, 3) = 1.0;
+
 	return rotationMatrix;
 }
+
+
 int main()
 {
 
 	//creation of a molecule in order to text the rotations
+	Molecule molecule;
+
+	//creation of all the atoms
 	Atom a1(0, 1, 0);
 	Atom a2(0, -1, 0);
 	Atom a3(1, 0, 0);
@@ -131,17 +176,17 @@ int main()
 	Atom a5(3, 1, 0);
 	Atom a6(3, -1, 0);
 	Atom a7(4, 0, 0);
-	std::vector<Atom> listOfAtoms(7, a1);
 
-	listOfAtoms.at(0) = a1;
-	listOfAtoms.at(1) = a2;
-	listOfAtoms.at(2) = a3;
-	listOfAtoms.at(3) = a4;
-	listOfAtoms.at(4) = a5;
-	listOfAtoms.at(5) = a6;
-	listOfAtoms.at(6) = a7;
-	Molecule molecule(listOfAtoms);
+	//atoms added to molecule
+	molecule.addAtom(a1);
+	molecule.addAtom(a2);
+	molecule.addAtom(a3);
+	molecule.addAtom(a4);
+	molecule.addAtom(a5);
+	molecule.addAtom(a6);
+	molecule.addAtom(a7);
 
+	//edges added to molecule
 	molecule.setEdge(0, 2);
 	molecule.setEdge(1, 2);
 	molecule.setEdge(2, 3);
@@ -151,8 +196,19 @@ int main()
 	molecule.setEdge(5, 6);
 
 	std::cout << molecule.toString();
+
+	//get all the rotators of the molecule
+	std::vector<std::pair<Atom, Atom>> rotators = molecule.getRotators();
+	int rotatorNumber = 1;
+	std::cout << "\n\nList of rotators";
+	for (std::pair<Atom, Atom> rotator : rotators)
+	{
+		cout << "\nRotator number " << to_string(rotatorNumber) << " " << rotator.first.toString() << rotator.second.toString();
+		rotatorNumber++;
+	}
+
 	//cicle in which all rotations are performed
-	for (int angle = 0; angle<360; angle++)
+	for (int angle = 0; angle<360; angle += 15)
 	{
 		//Molecule moleculeToRotate = new Molecule(molecule);
 		std::vector<Atom> pointsToRotate(3, a5);
@@ -160,13 +216,16 @@ int main()
 		pointsToRotate.at(0) = a5;
 		pointsToRotate.at(1) = a6;
 		pointsToRotate.at(2) = a7;
-	std:cout << "\n\nI want to rotate the following points of " << std::to_string(angle) << " degree:";
+		cout << "\n\nI want to rotate the following points of " << std::to_string(angle) << " degree:";
+
 		for (Atom point : pointsToRotate)
 		{
 			std::cout << point.toString();
 		}
+
 		matrix<float> rotationMatrix = createRotationMatrix(angle, a3, a4);
-		std::cout << std::endl << rotationMatrix << std::endl;
+		cout << std::endl << rotationMatrix << std::endl;
+
 		//the for loop applies the rotation to all points in pointsToRotate
 		int i = 0;
 		for (Atom point : pointsToRotate)
@@ -175,10 +234,11 @@ int main()
 			pointsRotated.at(i) = point;
 			i++;
 		}
-		std::cout << "\nAfter rotation:";
+
+		cout << "\nAfter rotation:";
 		for (Atom point : pointsRotated)
 		{
-			std::cout << point.toString();
+			cout << point.toString();
 		}
 	}
 }
