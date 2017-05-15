@@ -5,6 +5,7 @@
 //  Created by Danilo Labanca on 14/05/17.
 //  Copyright © 2017 Danilo Labanca. All rights reserved.
 //
+// how to understand mol2 contents -> http://thegrantlab.org/bio3d/html/read.mol2.html
 
 #include <iostream>
 #include <fstream>
@@ -14,7 +15,12 @@
 
 using namespace std;
 
-vector<string> split_line(string& line)
+const string MOLECULE_BEGIN = "@<TRIPOS> MOLECULE";
+const string MOLECULE_ATOMS = "@<TRIPOS> ATOM";
+const string MOLECULE_BONDS = "@<TRIPOS> BOND";
+
+
+vector<string> splitLine(string& line)
 {
     vector<string> elements;
     string temp = "";
@@ -33,6 +39,8 @@ vector<string> split_line(string& line)
         }
     }
     
+    if (temp.compare("") != 0)
+        elements.push_back(temp);
     
     return elements;
 }
@@ -67,23 +75,36 @@ public:
     
     string toString()
     {
-        return "x = " + std::to_string(x) + " y = " + std::to_string(y) + " z = " + std::to_string(z);
+        return "x = " + to_string(x) + " y = " + to_string(y) + " z = " + to_string(z);
     }
     
 };
 
 class Molecule
 {
-    std::vector<Atom> atoms;
-    std::vector<std::list<int>> links;
+    vector<Atom> atoms;
+    vector<list<int>> links;
+    string name;
     
     
 public:
     
+    Molecule(string name)
+    {
+        this->name = name;
+        atoms.clear();
+        links.clear();
+    }
+    
+    void setName(string name)
+    {
+        this->name = name;
+    }
+    
     void addAtom(Atom atom)
     {
         atoms.push_back(atom);
-        std::list<int> link;
+        list<int> link;
         links.push_back(link);
     }
     
@@ -106,14 +127,14 @@ public:
         //creates a string with the structure of the graph
         molecule += "\n\nGraph structure:";
         int atom = 0;
-        for (std::list<int> link : links)
+        for (list<int> link : links)
         {
             molecule += "\nAtom:  ";
             molecule += std::to_string(atom);
             molecule += " linked to: ";
-            for (std::list<int>::iterator it = link.begin(); it != link.end(); ++it)
+            for (list<int>::iterator it = link.begin(); it != link.end(); ++it)
             {
-                molecule += std::to_string(*it);
+                molecule += to_string(*it);
                 molecule += ", ";
             }
             atom++;
@@ -125,49 +146,83 @@ public:
 
 int main()
 {
-    fstream ligand("ligand_dataset.txt");
     
+    fstream ligand("ace_ligands.mol2");
     
     if( ligand.is_open())
     {
         cout << "File ok\n";
         
         string line;
-        vector<string> elements;
-        Molecule molecule;
-        int atoms_index = 0;
+        vector<string> text_elements;
+        Molecule* temp_molecule = new Molecule("EMPTY MOLECULE");
+        bool name_flag = false;
+        bool atoms_flag = false;
+        bool bonds_flag = false;
         
+        int atoms_index = 0;    //just for testing
+        int count_molecule = 0; //just for testing
         int count_atoms = 0;    //just for testing
         
         while (getline (ligand, line))
         {
-            elements = split_line(line);
+            text_elements = splitLine(line);
             
-            if(elements[0].compare("ATOM") == 0)
+            if (text_elements[0].compare(MOLECULE_BEGIN) == 0)
             {
-                cout << "I find a new atom #" << ++count_atoms << '\n';
+                cout << "I find a new molecule, #" << ++count_molecule << '\n';
                 
-                float x = stof(elements[6]);
-                float y = stof(elements[7]);
-                float z = stof(elements[8]);
+                name_flag = true;
+                atoms_flag = false;
+                bonds_flag = false;
                 
-                Atom new_atom (x, y, z);
+            }
+            else if (text_elements[0].compare(MOLECULE_ATOMS) == 0)
+            {
+                cout << "These are its atoms\n";
                 
-                cout << "It's composition " << new_atom.toString() << '\n';
+                name_flag = false;
+                atoms_flag = true;
+                bonds_flag = false;
                 
-                molecule.addAtom(new_atom);
+//
+//                for (int i = 1; i < elements.size(); i++)
+//                {
+//                    cout << "Edge: " << atoms_index << "->" << elements[i] << '\n';
+//                    molecule.setEdge(atoms_index, stoi(elements[i]));
+//                }
+//                
+//                atoms_index++;
+            }
+            else if (text_elements[0].compare(MOLECULE_BONDS) == 0)
+            {
+                cout << "These are its bonds\n";
+                
+                name_flag = false;
+                atoms_flag = false;
+                bonds_flag = true;
             }
             else
             {
-                cout << "I'm connecting some atoms\n";
-                
-                for (int i = 1; i < elements.size(); i++)
+                if (name_flag && !atoms_flag && !bonds_flag)
                 {
-                    cout << "Edge: " << atoms_index << "->" << elements[i] << '\n';
-                    molecule.setEdge(atoms_index, stoi(elements[i]));
+                    temp_molecule = new Molecule (text_elements[0]);
                 }
-                
-                atoms_index++;
+                else if (!name_flag && atoms_flag && !bonds_flag)
+                {
+                    float x = stof(text_elements[2]);
+                    float y = stof(text_elements[3]);
+                    float z = stof(text_elements[4]);
+                    
+                    temp_molecule->addAtom(Atom (x, y, z));
+                }
+                else if (!name_flag && !atoms_flag && !bonds_flag)
+                {
+                    int source = stoi(text_elements[1]);
+                    int destination = stoi(text_elements[2]);
+                    
+                    temp_molecule->setEdge(source, destination);
+                }
             }
             
             cout << '\n';
@@ -179,9 +234,6 @@ int main()
         }
         
         ligand.close();
-        
-        cout << "The resultant molecule:\n";
-        cout << molecule.toString();
     }
     else cout << "Unable to open the file\n";
     
