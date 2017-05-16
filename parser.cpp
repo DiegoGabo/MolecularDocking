@@ -1,10 +1,3 @@
-//
-//  main.cpp
-//  parser
-//
-//  Created by Danilo Labanca on 14/05/17.
-//  Copyright © 2017 Danilo Labanca. All rights reserved.
-//
 // how to understand mol2 contents -> http://thegrantlab.org/bio3d/html/read.mol2.html
 
 #include <iostream>
@@ -59,7 +52,7 @@ public:
 class Molecule
 {
     vector<Atom> atoms;
-    vector<list<int>> links;
+    vector<list<int> > links;
     string name;
     
     
