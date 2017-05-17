@@ -1,15 +1,13 @@
-#include "structures.h"
-#include <iostream>
+#include "structures_molecule.hpp"
+#include <string>
 #include <vector>
 #include <list>
-#include "boost/numeric/ublas/matrix.hpp"
+#include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
-#include <math.h>
 
 using namespace std;
 using namespace boost::numeric::ublas;
 
-const float PI = 3.14159265;
 
 //Implementations of class Atom functions
 
@@ -19,15 +17,15 @@ Atom::Atom(float x, float y, float z)
     this->y = y;
     this->z = z;
 }
-    
-    /*
-     @return the x coordinate
-     */
+
+/*
+ @return the x coordinate
+ */
 float Atom::getX()
 {
     return x;
 }
-    
+
 /*
  @return the y coordinate
  */
@@ -87,7 +85,7 @@ int Molecule::getAtomIndex(Atom atom)
     }
     return 0;
 }
-    
+
 /*
  @rotator the rotator that we want to verify if it is in a cycle
  @return a boolean that indicates if the rotator is in a cycle
@@ -137,7 +135,7 @@ string Molecule::getName()
 {
     return name;
 }
-    
+
 /*
  it adds an atom to the molecule
  @atom the atom that has to be added
@@ -279,134 +277,3 @@ string Molecule::toString()
     return molecule;
 }
 
-//Implementations of Vertex class functions
-
-void Vertex::setLatitude(float latitude)
-{
-    this->latitude = latitude;
-}
-
-void Vertex::setLongitude(float longitude)
-{
-    this->longitude = longitude;
-}
-
-float Vertex::getLatitude()
-{
-    return this->latitude;
-}
-
-float Vertex::getLongitude()
-{
-    return this->longitude;
-}
-
-string Vertex::toString()
-{
-    string vertex;
-    vertex="Vertex with latitude ";
-    vertex += to_string(latitude);
-    vertex += " and longitude ";
-    vertex += to_string(longitude);
-    
-    return vertex;
-}
-
-
-//Implementations of Vertex3D class functions
-
-void Vertex3D::setVariableX(float x)
-{
-    this->x = x;
-}
-
-void Vertex3D::setVariableY(float y)
-{
-    this->y = y;
-}
-
-void Vertex3D::setVariableZ(float z)
-{
-    this->z = z;
-}
-
-string Vertex3D::toString()
-{
-    string vertex="Vertex with x = ";
-    vertex += std::to_string(x);
-    vertex += " and y = ";
-    vertex += std::to_string(y);
-    vertex += " and z = ";
-    vertex += std::to_string(z);
-    
-    return vertex;
-}
-
-//Implementations of Pocket class functions
-
-class Pocket
-{
-	float longmax,latmax;
-	std::vector<Vertex> vertexMatrix;
-	std::vector<Vertex3D> spherePoints;
-	int i, j;
-	public:
-		Pocket(float latmax, float longmax)
-		{
-			this->latmax=latmax;
-	 		this->longmax=longmax;
-			for(i=0;i<latmax;i++)
-				for (j = 0; j < longmax; j++)
-				{
-					Vertex vertex;
-					vertex.setLatitude(i);
-					vertex.setLongitude(j);
-					vertexMatrix.push_back(vertex);
-				}
-
-		}
-
-	public:
-	
-		void transformation()
-		{
-			
-			for(Vertex vertex: vertexMatrix)
-			{
-				Vertex3D vertex3d;
-				vertex3d.setVariableX(sin(PI * vertex.getLatitude() / latmax) *cos(2*PI * vertex.getLongitude() / longmax));
-				vertex3d.setVariableY(sin(PI * vertex.getLatitude() / latmax) *sin(2*PI * vertex.getLongitude() / longmax));
-				vertex3d.setVariableZ(cos(PI * vertex.getLatitude() / latmax));
-				spherePoints.push_back(vertex3d);
-			}
-			
-			std::vector<Vertex3D>::iterator begin = spherePoints.begin();
-			std::vector<Vertex3D>::iterator end = begin + latmax - 1;
-			spherePoints.erase(begin, end);
-			
-			Vertex3D vertex;
-			vertex.setVariableX(0);
-			vertex.setVariableY(0);
-			vertex.setVariableZ(-1);
-			spherePoints.push_back(vertex);
-
-		}
-		
-		std::string toString()
-		{
-			std::string pocket = "The vector2d:";
-			for (Vertex vertex: vertexMatrix)
-			{
-				pocket += "\n";
-				pocket += vertex.toString();
-			}
-			
-			pocket += "\nThe sphere:";
-			for (Vertex3D vertex3D: spherePoints)
-			{
-				pocket += "\n";
-				pocket += vertex3D.toString();
-			}
-			return pocket;
-		}	
-};

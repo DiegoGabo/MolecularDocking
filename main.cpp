@@ -4,7 +4,8 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 #include <math.h>
-#include "structures.h"
+#include "structures_molecule.hpp"
+#include "structures_pocket.hpp"
 
 using namespace std;
 using namespace boost::numeric::ublas;
