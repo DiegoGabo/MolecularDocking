@@ -216,7 +216,7 @@ std::vector<int> Molecule::getSuccessor(int atom)
 @rotator the rotator of which we want to know the successors
 @return the successors of the rotator
 */
-std::vector<int> getRotatorSuccessors(std::pair<Atom, Atom> rotator)
+std::vector<int> Molecule::getRotatorSuccessors(std::pair<Atom, Atom> rotator)
 {
 	int first = getAtomIndex(rotator.first);
 	int second = getAtomIndex(rotator.second);
@@ -242,17 +242,17 @@ std::vector<int> getRotatorSuccessors(std::pair<Atom, Atom> rotator)
 	return successorsIndex;
 }
 
-std::vector<Atom> getAtoms()
+std::vector<Atom> Molecule::getAtoms()
 {
 	return atoms;
 }
 
-std::vector<std::list<int>> getLinks()
+std::vector<std::list<int>> Molecule::getLinks()
 {
 	return links;
 }
 
-void transform(matrix<float>  transformationMatrix, int index)
+void Molecule::transform(matrix<float> transformationMatrix, int index)
 {
 	atoms.at(index).transform(transformationMatrix);
 }

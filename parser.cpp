@@ -53,9 +53,7 @@ vector<Molecule> parseFile(string n, int l)
         string line;
         vector<string> text_elements;
 
-        int limit = 1;
-        if(l != -1)
-            limit = -l;
+        int limit = -l;
         
         Molecule* temp_molecule = new Molecule(MOLECULE_NULL);
         

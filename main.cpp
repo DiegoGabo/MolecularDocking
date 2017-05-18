@@ -6,6 +6,8 @@
 #include <math.h>
 #include "structures_molecule.hpp"
 #include "structures_pocket.hpp"
+#include "parser.hpp"
+
 using namespace std;
 using namespace boost::numeric::ublas;
 /*
@@ -86,7 +88,7 @@ int main()
 
 	//std::cout << molecule.toString();
 
-	std::vector<Molecule> molecules = parseFile();
+	std::vector<Molecule> molecules = parseFile("ace_ligands.mol2", 2);
 
 	for (Molecule molecule : molecules)
 	{
@@ -110,7 +112,7 @@ int main()
 			{
 
 				//create a copy of the molecule that has to be rotated
-				Molecule moleculeRotated;
+				Molecule moleculeRotated = Molecule(molecule.getName());
 				for (Atom atom : molecule.getAtoms())
 					moleculeRotated.addAtom(atom);
 

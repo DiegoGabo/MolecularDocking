@@ -61,13 +61,6 @@ private:
     std::vector<std::list<int> > links;
     
     /*
-     returns the index of vector atoms that corresponds to the atom passed as a parameter
-     @param atom the atom of which we want to know the index
-     @return the index of atoms in which there is the atom passed as a paramater
-     */
-    int getAtomIndex(Atom atom);
-    
-    /*
      @rotator the rotator that we want to verify if it is in a cycle
      @return a boolean that indicates if the rotator is in a cycle
      */
@@ -86,6 +79,13 @@ public:
      @atom the atom that has to be added
      */
     void addAtom(Atom atom);
+    
+    /*
+     returns the index of vector atoms that corresponds to the atom passed as a parameter
+     @param atom the atom of which we want to know the index
+     @return the index of atoms in which there is the atom passed as a paramater
+     */
+    int getAtomIndex(Atom atom);
     
     /*
      it adds an edge to the molecule
@@ -116,7 +116,7 @@ public:
 
 	std::vector<std::list<int>> getLinks();
 
-	void transform(matrix<float>  transformationMatrix, int index);
+    void transform(boost::numeric::ublas::matrix<float>  transformationMatrix, int index);
 
     /*
      @return a string that describes the molecule
