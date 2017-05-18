@@ -1,6 +1,6 @@
 // how to understand mol2 contents -> http://thegrantlab.org/bio3d/html/read.mol2.html
 
-#include <iostream>
+#include "parser.hpp"
 #include <fstream>
 #include <string>
 #include <vector>
@@ -42,16 +42,20 @@ vector<string> splitLine(string& line)
 }
 
 
-vector<Molecule> parseFile()
+vector<Molecule> parseFile(string n, int l)
 {
     vector<Molecule> molecules;
     
-    fstream ligands("/Users/dan_lab7/Desktop/ACA/ACA/ace_ligands.mol2");
+    fstream ligands(n);
     
     if( ligands.is_open())
     {
         string line;
         vector<string> text_elements;
+
+        int limit = 1;
+        if(l != -1)
+            limit = -l;
         
         Molecule* temp_molecule = new Molecule(MOLECULE_NULL);
         
@@ -59,7 +63,7 @@ vector<Molecule> parseFile()
         bool atoms_flag = false;
         bool bonds_flag = false;
         
-        while (getline (ligands, line))
+        while (getline(ligands, line) and limit)
         {
             text_elements = splitLine(line);
             
@@ -79,6 +83,7 @@ vector<Molecule> parseFile()
                 {
                     molecules.push_back(*temp_molecule);
                     temp_molecule = new Molecule(MOLECULE_NULL);
+                    limit++;
                 }
             }
             else if (text_elements[0].compare(MOLECULE_ATOMS) == 0)
