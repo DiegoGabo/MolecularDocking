@@ -51,81 +51,92 @@ matrix<float> createRotationMatrix(int angle, Atom first, Atom second)
 }
 int main()
 {
-	//creation of a molecule in order to text the rotations
-	Molecule molecule("TESTING MOLECULE");
+	////creation of a molecule in order to text the rotations
+	//Molecule molecule("TESTING MOLECULE");
 
-	//creation of all the atoms
-	Atom a1(0, 1, 0);
-	Atom a2(0, -1, 0);
-	Atom a3(1, 0, 0);
-	Atom a4(2, 0, 0);
-	Atom a5(3, 1, 0);
-	Atom a6(3, -1, 0);
-	Atom a7(4, 0, 0);
-	Atom a8(-1, -1, 0);
+	////creation of all the atoms
+	//Atom a1(0, 1, 0);
+	//Atom a2(0, -1, 0);
+	//Atom a3(1, 0, 0);
+	//Atom a4(2, 0, 0);
+	//Atom a5(3, 1, 0);
+	//Atom a6(3, -1, 0);
+	//Atom a7(4, 0, 0);
+	//Atom a8(-1, -1, 0);
 
-	//atoms added to molecule
-	molecule.addAtom(a1);
-	molecule.addAtom(a2);
-	molecule.addAtom(a3);
-	molecule.addAtom(a4);
-	molecule.addAtom(a5);
-	molecule.addAtom(a6);
-	molecule.addAtom(a7);
-	molecule.addAtom(a8);
+	////atoms added to molecule
+	//molecule.addAtom(a1);
+	//molecule.addAtom(a2);
+	//molecule.addAtom(a3);
+	//molecule.addAtom(a4);
+	//molecule.addAtom(a5);
+	//molecule.addAtom(a6);
+	//molecule.addAtom(a7);
+	//molecule.addAtom(a8);
 
-	//edges added to molecule
-	molecule.setEdge(0, 2);
-	molecule.setEdge(1, 2);
-	molecule.setEdge(2, 3);
-	molecule.setEdge(3, 4);
-	molecule.setEdge(3, 5);
-	molecule.setEdge(4, 6);
-	molecule.setEdge(5, 6);
-	molecule.setEdge(1, 7);
+	////edges added to molecule
+	//molecule.setEdge(0, 2);
+	//molecule.setEdge(1, 2);
+	//molecule.setEdge(2, 3);
+	//molecule.setEdge(3, 4);
+	//molecule.setEdge(3, 5);
+	//molecule.setEdge(4, 6);
+	//molecule.setEdge(5, 6);
+	//molecule.setEdge(1, 7);
 
-	std::cout << molecule.toString();
+	//std::cout << molecule.toString();
 
-	//get all the rotators of the molecule
-	std::vector<pair<Atom, Atom>> rotators = molecule.getRotators();
-	int rotatorNumber = 1;
-	cout << "\n\nList of rotators";
-	for (pair<Atom, Atom> rotator : rotators)
+	std::vector<Molecule> molecules = parseFile();
+
+	for (Molecule molecule : molecules)
 	{
-		cout << "\nRotator number " << to_string(rotatorNumber) << " " << rotator.first.toString() << rotator.second.toString();
-		rotatorNumber++;
-	}
-
-	for (pair<Atom, Atom> rotator : rotators)
-	{
-		cout << "\n\nI Consider the rotator " << rotator.first.toString() << rotator.second.toString();
-		//cicle in which all rotations are performed
-		for (int angle = 0; angle<360; angle += 15)
+		//get all the rotators of the molecule
+		std::vector<std::pair<Atom, Atom>> rotators = molecule.getRotators();
+		int rotatorNumber = 1;
+		std::cout << "\n\nList of rotators";
+		for (std::pair<Atom, Atom> rotator : rotators)
 		{
-			//Molecule moleculeToRotate = new Molecule(molecule);
-			std::vector<Atom> pointsToRotate;
-			std::vector<Atom> pointsRotated;
+			cout << "\nRotator number " << to_string(rotatorNumber) << " " << molecule.getAtomIndex(rotator.first) << " " << molecule.getAtomIndex(rotator.second);
+			rotatorNumber++;
+		}
 
-			pointsToRotate = molecule.getRotatorSuccessors(rotator);
+		//cycle for each rotator of the molecule
+		for (std::pair<Atom, Atom> rotator : rotators)
+		{
+			std::cout << "\n\nI Consider the rotator " << rotator.first.toString() << rotator.second.toString();
 
-			cout << "\nI want to rotate the following points of " << std::to_string(angle) << " degree:";
-
-			for (Atom point : pointsToRotate)
-				cout << std::endl << point.toString();
-
-			matrix<float> rotationMatrix = createRotationMatrix(angle, a3, a4);
-			cout << endl << rotationMatrix << endl;
-
-			//the for loop applies the rotation to all points in pointsToRotate
-			for (Atom point : pointsToRotate)
+			//cicle in which all rotations are performed
+			for (int angle = 0; angle<360; angle += 15)
 			{
-				point.transform(rotationMatrix);
-				pointsRotated.push_back(point);
-			}
 
-			cout << "\nAfter rotation:";
-			for (Atom point : pointsRotated)
-				cout << point.toString();
+				//create a copy of the molecule that has to be rotated
+				Molecule moleculeRotated;
+				for (Atom atom : molecule.getAtoms())
+					moleculeRotated.addAtom(atom);
+
+				std::vector<std::list<int>> links = molecule.getLinks();
+				for (int src = 0; src < links.size(); src++)
+				{
+					for (int dest : links.at(src))
+						moleculeRotated.setEdge(src, dest);
+				}
+
+				std::vector<int> pointsToRotate;
+				pointsToRotate = molecule.getRotatorSuccessors(rotator);
+
+				cout << "\n\nI want to rotate the following points of " << std::to_string(angle) << " degree:\t";
+				for (int point : pointsToRotate)
+					cout << std::to_string(point) << " ";
+
+				matrix<float> rotationMatrix = createRotationMatrix(angle, rotator.first, rotator.second);
+				cout << "\n\nThis is the rotation matrix:\n" << rotationMatrix << std::endl;
+
+				//the for loop applies the rotation to all points in pointsToRotate
+				for (int point : pointsToRotate)
+					molecule.transform(rotationMatrix, point);
+
+				cout << "\nAfter rotation:\n" << molecule.toString();
+			}
 		}
 	}
 }

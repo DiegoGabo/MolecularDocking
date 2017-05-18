@@ -213,38 +213,48 @@ std::vector<int> Molecule::getSuccessor(int atom)
 }
 
 /*
- @rotator the rotator of which we want to know the successors
- @return the successors of the rotator
- */
-std::vector<Atom> Molecule::getRotatorSuccessors(pair<Atom, Atom> rotator)
+@rotator the rotator of which we want to know the successors
+@return the successors of the rotator
+*/
+std::vector<int> getRotatorSuccessors(std::pair<Atom, Atom> rotator)
 {
-    int first = getAtomIndex(rotator.first);
-    int second = getAtomIndex(rotator.second);
-    
-    std::vector<int> atomsToBeConsidered;
-    std::vector<int> successorsIndex;
-    std::vector<Atom> successors;
-    
-    for (int a : getSuccessor(second))
-        atomsToBeConsidered.push_back(a);
-    
-    while (!atomsToBeConsidered.empty())
-    {
-        int nextAtom = atomsToBeConsidered.back();
-        atomsToBeConsidered.pop_back();
-        if (find(successorsIndex.begin(), successorsIndex.end(), nextAtom) == successorsIndex.end() &&
-            nextAtom != first && nextAtom != second)
-        {
-            successorsIndex.push_back(nextAtom);
-            for (int a : getSuccessor(nextAtom))
-                atomsToBeConsidered.push_back(a);
-        }
-    }
-    
-    for (int a : successorsIndex)
-        successors.push_back(atoms.at(a));
-    
-    return successors;
+	int first = getAtomIndex(rotator.first);
+	int second = getAtomIndex(rotator.second);
+
+	std::vector<int> atomsToBeConsidered;
+	std::vector<int> successorsIndex;
+
+	for (int a : getSuccessor(second))
+		atomsToBeConsidered.push_back(a);
+
+	while (!atomsToBeConsidered.empty())
+	{
+		int nextAtom = atomsToBeConsidered.back();
+		atomsToBeConsidered.pop_back();
+		if (std::find(successorsIndex.begin(), successorsIndex.end(), nextAtom) == successorsIndex.end() &&
+			nextAtom != first && nextAtom != second)
+		{
+			successorsIndex.push_back(nextAtom);
+			for (int a : getSuccessor(nextAtom))
+				atomsToBeConsidered.push_back(a);
+		}
+	}
+	return successorsIndex;
+}
+
+std::vector<Atom> getAtoms()
+{
+	return atoms;
+}
+
+std::vector<std::list<int>> getLinks()
+{
+	return links;
+}
+
+void transform(matrix<float>  transformationMatrix, int index)
+{
+	atoms.at(index).transform(transformationMatrix);
 }
 
 /*

@@ -110,8 +110,14 @@ public:
      @rotator the rotator of which we want to know the successors
      @return the successors of the rotator
      */
-    std::vector<Atom> getRotatorSuccessors(std::pair<Atom, Atom> rotator);
+    std::vector<int> getRotatorSuccessors(std::pair<Atom, Atom> rotator);
     
+	std::vector<Atom> getAtoms();
+
+	std::vector<std::list<int>> getLinks();
+
+	void transform(matrix<float>  transformationMatrix, int index);
+
     /*
      @return a string that describes the molecule
      */
