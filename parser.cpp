@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <list>
-#include "structures.h"
+#include "structures_molecule.hpp"
 
 using namespace std;
 
@@ -46,7 +46,7 @@ vector<Molecule> parseFile()
 {
     vector<Molecule> molecules;
     
-    fstream ligands("ace_ligands.mol2");
+    fstream ligands("/Users/dan_lab7/Desktop/ACA/ACA/ace_ligands.mol2");
     
     if( ligands.is_open())
     {
@@ -114,8 +114,8 @@ vector<Molecule> parseFile()
                 }
                 else if (!name_flag && !atoms_flag && bonds_flag)
                 {
-                    int source = stoi(text_elements[1]);
-                    int destination = stoi(text_elements[2]);
+                    int source = stoi(text_elements[1]) -1 ;
+                    int destination = stoi(text_elements[2]) - 1;
                     
                     temp_molecule->setEdge(source, destination);
                 }
