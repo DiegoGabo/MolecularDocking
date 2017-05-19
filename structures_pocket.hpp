@@ -2,6 +2,7 @@
 #define structures_h
 
 #include <string>
+#include "structures_molecule.hpp"
 #include <vector>
 #include <list>
 
@@ -49,7 +50,7 @@ class Pocket
         float longmax,latmax;
         
         std::vector<Vertex> vertexMatrix;
-        std::vector<Vertex3D> spherePoints;
+        std::vector<Atom> spherePoints;
         
         int i, j;
     
@@ -71,7 +72,7 @@ class Pocket
 		/*
 		@return the set of equidistant atoms of the sphere
 		*/
-		std::vector<Atom> getAtoms()
+		std::vector<Atom> getAtoms();
 };
 
 

@@ -132,7 +132,7 @@ int main()
 
 	std::vector<Molecule> molecules = parseFile("ace_ligands.mol2", 2);
 	float bestScore = 0;
-	Molecule bestMolecule;
+	Molecule bestMolecule("");
 
 	//create the pocket
 	Pocket pocket(10, 10);
@@ -189,7 +189,7 @@ int main()
 
 				float score = calcolateScore(molecule, pocket);
 
-				if (score > bestMolecule)
+				if (score > bestScore)
 				{
 					bestMolecule = molecule;
 					bestScore = score;
