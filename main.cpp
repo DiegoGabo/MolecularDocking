@@ -52,11 +52,21 @@ matrix<float> createRotationMatrix(int angle, Atom first, Atom second)
 	return rotationMatrix;
 }
 
+/*
+@param a1 the first atom
+@param a2 the second atom
+return the euclidean distance of the atoms passed as a parameter
+*/
 float euclideanDistance(Atom a1, Atom a2)
 {
 	return sqrt(pow((a1.getX() - a2.getX()), 2) + pow((a1.getY() - a2.getY()), 2) + pow((a1.getZ() - a2.getZ()), 2));
 }
 
+/*
+@param ligand the molecole 
+@param pocket the pocket in which the ligand has to merge
+@return a score that indicates how the ligand fix the pocket
+*/
 float calcolateScore(Molecule ligand, Pocket pocket)
 {
 	const float my_epsilon = 1.0e-16f;
