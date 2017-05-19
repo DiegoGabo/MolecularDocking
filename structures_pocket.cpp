@@ -1,4 +1,5 @@
 #include "structures_pocket.hpp"
+#include "structures_molecule.hpp"
 #include <iostream>
 #include <vector>
 #include <list>
@@ -31,6 +32,11 @@ float Vertex::getLongitude()
     return this->longitude;
 }
 
+std::vector<Atom> getAtoms()
+{
+	return spherePoints;
+}
+
 string Vertex::toString()
 {
     string vertex;
@@ -42,35 +48,6 @@ string Vertex::toString()
     return vertex;
 }
 
-
-//Implementations of Vertex3D class functions
-
-void Vertex3D::setVariableX(float x)
-{
-    this->x = x;
-}
-
-void Vertex3D::setVariableY(float y)
-{
-    this->y = y;
-}
-
-void Vertex3D::setVariableZ(float z)
-{
-    this->z = z;
-}
-
-string Vertex3D::toString()
-{
-    string vertex="Vertex with x = ";
-    vertex += std::to_string(x);
-    vertex += " and y = ";
-    vertex += std::to_string(y);
-    vertex += " and z = ";
-    vertex += std::to_string(z);
-    
-    return vertex;
-}
 
 //Implementations of Pocket class functions
 
@@ -94,18 +71,18 @@ void Pocket::transformation()
     
     for(Vertex vertex: vertexMatrix)
     {
-        Vertex3D vertex3d;
+        Atom vertex3d(0,0,0);
         vertex3d.setVariableX(sin(PI * vertex.getLatitude() / latmax) *cos(2*PI * vertex.getLongitude() / longmax));
         vertex3d.setVariableY(sin(PI * vertex.getLatitude() / latmax) *sin(2*PI * vertex.getLongitude() / longmax));
         vertex3d.setVariableZ(cos(PI * vertex.getLatitude() / latmax));
         spherePoints.push_back(vertex3d);
     }
 
-    vector<Vertex3D>::iterator begin = spherePoints.begin();
-    vector<Vertex3D>::iterator end = begin + latmax - 1;
+    vector<Atom>::iterator begin = spherePoints.begin();
+    vector<Atom>::iterator end = begin + latmax - 1;
     spherePoints.erase(begin, end);
     
-    Vertex3D vertex;
+    Atom vertex;
     vertex.setVariableX(0);
     vertex.setVariableY(0);
     vertex.setVariableZ(-1);
@@ -122,7 +99,7 @@ string Pocket::toString()
     }
     
     pocket += "\nThe sphere:";
-    for (Vertex3D vertex3D: spherePoints)
+    for (Atom vertex3D: spherePoints)
     {
         pocket += "\n";
         pocket += vertex3D.toString();

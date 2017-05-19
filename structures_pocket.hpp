@@ -26,26 +26,6 @@ class Vertex
 };
 
 
-class Vertex3D
-{
-    
-    private:
-    
-        float x;
-        float y;
-        float z;
-    
-    public:
-    
-        void setVariableX(float x);
-        
-        void setVariableY(float y);
-        
-        void setVariableZ(float z);
-        
-        std::string toString();
-    
-};
 
 class Pocket
 {

@@ -34,7 +34,23 @@ public:
      @return the z coordinate
      */
     float getZ();
-    /*
+
+     /*
+     @set the x coordinate
+     */
+    void setVariableX(float x);
+
+	/*
+     @set the y coordinate
+     */    
+	void setVariableY(float y);
+
+	/*
+     @set the z coordinate
+     */    
+	void setVariableZ(float z);
+
+     /*
      return a string that describe the atom
      */
     std::string toString();
