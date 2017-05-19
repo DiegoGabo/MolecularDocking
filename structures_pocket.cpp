@@ -101,7 +101,7 @@ void Pocket::transformation()
     vector<Atom>::iterator end = begin + latmax - 1;
     spherePoints.erase(begin, end);
     
-    Atom vertex;
+    Atom vertex(0,0,0);
     vertex.setVariableX(0);
     vertex.setVariableY(0);
     vertex.setVariableZ(-1);
