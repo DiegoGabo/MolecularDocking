@@ -39,13 +39,7 @@ float Vertex::getLongitude()
 {
     return this->longitude;
 }
-/*
- @return the set of equidistant atoms of the sphere
- */
-std::vector<Atom> getAtoms()
-{
-	return spherePoints;
-}
+
 /*
  @return a string that describes the 2d vertex
  */
@@ -79,6 +73,15 @@ Pocket::Pocket(float latmax, float longmax)
             vertexMatrix.push_back(vertex);
         }
 }
+
+/*
+ @return the set of equidistant atoms of the sphere
+ */
+vector<Atom> Pocket::getAtoms()
+{
+    return spherePoints;
+}
+
 /*
  Transforms the bidimensional points of a mesh into coordinates of equidistant atoms in the sphere
  */

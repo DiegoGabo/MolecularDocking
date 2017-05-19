@@ -45,24 +45,27 @@ float Atom::getZ()
 /*
  	 set the x coordinate
  */
-void setVariableX(float x)
+void Atom::setVariableX(float x)
 {
 		this->x = x;
 }
+
 /*
  	 set the y coordinate
  */
-void setVariableY(float y)
+void Atom::setVariableY(float y)
 {
 		this->y = y;
 }
+
 /*
  	 set the z coordinate
  */
-void setVariableZ(float z)
+void Atom::setVariableZ(float z)
 {
 		this->z = z;
 }
+
 /*
  return a string that describe the atom
  */

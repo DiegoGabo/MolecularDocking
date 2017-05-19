@@ -127,10 +127,12 @@ public:
      @return the successors of the rotator
      */
     std::vector<int> getRotatorSuccessors(std::pair<Atom, Atom> rotator);
+    
     /*
      	@return the list of atoms of the molecule
      */
 	std::vector<Atom> getAtoms();
+    
     /*
      	@return the list of links of the molecule
      */
