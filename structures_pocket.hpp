@@ -67,6 +67,11 @@ class Pocket
          @return a string that describes the pocket and the transformation
          */
         std::string toString();
+
+		/*
+		@return the set of equidistant atoms of the sphere
+		*/
+		std::vector<Atom> getAtoms()
 };
 
 
