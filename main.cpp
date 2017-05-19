@@ -124,6 +124,10 @@ int main()
 	float bestScore = 0;
 	Molecule bestMolecule;
 
+	//create the pocket
+	Pocket pocket(10, 10);
+	pocket.transformation();
+
 	for (Molecule molecule : molecules)
 	{
 		//get all the rotators of the molecule
@@ -172,9 +176,6 @@ int main()
 					molecule.transform(rotationMatrix, point);
 
 				cout << "\nAfter rotation:\n" << molecule.toString();
-
-				Pocket pocket(10, 10);
-				pocket.transformation();
 
 				float score = calcolateScore(molecule, pocket);
 
