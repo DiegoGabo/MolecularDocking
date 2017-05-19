@@ -51,6 +51,38 @@ matrix<float> createRotationMatrix(int angle, Atom first, Atom second)
 
 	return rotationMatrix;
 }
+
+float euclideanDistance(Atom a1, Atom a2)
+{
+	return sqrt(pow((a1.getX() - a2.getX()), 2) + pow((a1.getY() - a2.getY()), 2) + pow((a1.getZ() - a2.getZ()), 2));
+}
+
+float calcolateScore(Molecule ligand, Pocket pocket)
+{
+	const float my_epsilon = 1.0e-16f;
+	float score = 0.0f;
+
+	for (const Atom atom_l : ligand.getAtoms())
+	{
+		float distance_min = 1.0e37f;
+
+		for (const Atom atom_p : pocket.getAtoms())
+		{
+			float d = euclideanDistance(atom_l, atom_p);
+
+			if (d < distance_min)
+				distance_min = d;
+		}
+
+		score += distance_min;
+	}
+
+	if (score < my_epsilon)
+		score = my_epsilon;
+
+	return static_cast<float>(ligand.getAtoms().size()) / score;
+}
+
 int main()
 {
 	////creation of a molecule in order to text the rotations
@@ -138,6 +170,12 @@ int main()
 					molecule.transform(rotationMatrix, point);
 
 				cout << "\nAfter rotation:\n" << molecule.toString();
+
+				Pocket pocket(10, 10);
+				pocket.transformation();
+
+				float score = calcolateScore(molecule, pocket);
+				cout << "\nThe score is: " << std::to_string(score);
 			}
 		}
 	}
