@@ -121,6 +121,8 @@ int main()
 	//std::cout << molecule.toString();
 
 	std::vector<Molecule> molecules = parseFile("ace_ligands.mol2", 2);
+	float bestScore = 0;
+	Molecule bestMolecule;
 
 	for (Molecule molecule : molecules)
 	{
@@ -175,8 +177,17 @@ int main()
 				pocket.transformation();
 
 				float score = calcolateScore(molecule, pocket);
+
+				if (score > bestMolecule)
+				{
+					bestMolecule = molecule;
+					bestScore = score;
+				}
 				cout << "\nThe score is: " << std::to_string(score);
 			}
 		}
 	}
+
+	cout << "\n\nThe best score is: " << std::to_string(bestScore);
+	cout << "\n\nThe best molecule is: " << bestMolecule.toString();
 }
