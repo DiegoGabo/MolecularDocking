@@ -11,32 +11,44 @@ const float PI = 3.14159265;
 
 
 //Implementations of Vertex class functions
-
+/*
+	 set the latitude
+ */
 void Vertex::setLatitude(float latitude)
 {
     this->latitude = latitude;
 }
-
+/*
+	 set the longitude
+ */
 void Vertex::setLongitude(float longitude)
 {
     this->longitude = longitude;
 }
-
+/*
+ @return the latitude of the 2d coordinate
+ */
 float Vertex::getLatitude()
 {
     return this->latitude;
 }
-
+/*
+ @return the longitude of the 2d coordinate
+ */
 float Vertex::getLongitude()
 {
     return this->longitude;
 }
-
+/*
+ @return the set of equidistant atoms of the sphere
+ */
 std::vector<Atom> getAtoms()
 {
 	return spherePoints;
 }
-
+/*
+ @return a string that describes the 2d vertex
+ */
 string Vertex::toString()
 {
     string vertex;
@@ -50,7 +62,9 @@ string Vertex::toString()
 
 
 //Implementations of Pocket class functions
-
+/*
+  Creates a mesh of equidistant (latmax*longmax) 2d points 
+ */
 Pocket::Pocket(float latmax, float longmax)
 {
     this->latmax=latmax;
@@ -65,7 +79,9 @@ Pocket::Pocket(float latmax, float longmax)
             vertexMatrix.push_back(vertex);
         }
 }
-
+/*
+ Transforms the bidimensional points of a mesh into coordinates of equidistant atoms in the sphere
+ */
 void Pocket::transformation()
 {
     
@@ -89,6 +105,9 @@ void Pocket::transformation()
     spherePoints.push_back(vertex);
 }
 
+/*
+ @return a string that describes the pocket and the transformation
+ */
 string Pocket::toString()
 {
     string pocket = "The vector2d:";

@@ -127,11 +127,20 @@ public:
      @return the successors of the rotator
      */
     std::vector<int> getRotatorSuccessors(std::pair<Atom, Atom> rotator);
-    
+    /*
+     	@return the list of atoms of the molecule
+     */
 	std::vector<Atom> getAtoms();
-
+    /*
+     	@return the list of links of the molecule
+     */
 	std::vector<std::list<int>> getLinks();
 
+    /*
+     * @param transformationMatrix the matrix that describe the transformation
+     * @param index the index of the atom
+     	Trasforms the point passed as a parameter
+     */
     void transform(boost::numeric::ublas::matrix<float>  transformationMatrix, int index);
 
     /*
