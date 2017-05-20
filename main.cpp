@@ -141,20 +141,20 @@ int main()
 
 	for (Molecule molecule : molecules)
 	{
-		//get all the rotators of the molecule
-		std::vector<std::pair<Atom, Atom>> rotators = molecule.getRotators();
-		int rotatorNumber = 1;
-		std::cout << "\n\nList of rotators";
-		for (std::pair<Atom, Atom> rotator : rotators)
+		//get all the rotamers of the molecule
+		std::vector<std::pair<Atom, Atom>> rotamers = molecule.getRotamers();
+		int rotamerNumber = 1;
+		std::cout << "\n\nList of rotamers";
+		for (std::pair<Atom, Atom> rotamer : rotamers)
 		{
-			cout << "\nRotator number " << to_string(rotatorNumber) << " " << molecule.getAtomIndex(rotator.first) << " " << molecule.getAtomIndex(rotator.second);
-			rotatorNumber++;
+			cout << "\nRotamer number " << to_string(rotamerNumber) << " " << molecule.getAtomIndex(rotamer.first) << " " << molecule.getAtomIndex(rotamer.second);
+			rotamerNumber++;
 		}
 
-		//cycle for each rotator of the molecule
-		for (std::pair<Atom, Atom> rotator : rotators)
+		//cycle for each rotamer of the molecule
+		for (std::pair<Atom, Atom> rotamer : rotamers)
 		{
-			std::cout << "\n\nI Consider the rotator " << rotator.first.toString() << rotator.second.toString();
+			std::cout << "\n\nI Consider the rotamer " << rotamer.first.toString() << rotamer.second.toString();
 
 			//cicle in which all rotations are performed
 			for (int angle = 0; angle<360; angle += 15)
@@ -173,13 +173,13 @@ int main()
 				}
 
 				std::vector<int> pointsToRotate;
-				pointsToRotate = molecule.getRotatorSuccessors(rotator);
+				pointsToRotate = molecule.getRotamerSuccessors(rotamer);
 
 				cout << "\n\nI want to rotate the following points of " << std::to_string(angle) << " degree:\t";
 				for (int point : pointsToRotate)
 					cout << std::to_string(point) << " ";
 
-				matrix<float> rotationMatrix = createRotationMatrix(angle, rotator.first, rotator.second);
+				matrix<float> rotationMatrix = createRotationMatrix(angle, rotamer.first, rotamer.second);
 				cout << "\n\nThis is the rotation matrix:\n" << rotationMatrix << std::endl;
 
 				//the for loop applies the rotation to all points in pointsToRotate

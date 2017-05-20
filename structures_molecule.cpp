@@ -87,13 +87,13 @@ int Molecule::getAtomIndex(Atom atom)
 }
 
 /*
-@param rotator the rotator that we want to verify if it is in a cycle
-@return a boolean that indicates if the rotator is in a cycle
+@param rotamer the rotamer that we want to verify if it is in a cycle
+@return a boolean that indicates if the rotamer is in a cycle
 */
-bool Molecule::Molecule::isRotatorInCycle(std::pair<Atom, Atom> rotator)
+bool Molecule::Molecule::isRotamerInCycle(std::pair<Atom, Atom> rotamer)
 {
-    int first = getAtomIndex(rotator.first);
-    int second = getAtomIndex(rotator.second);
+    int first = getAtomIndex(rotamer.first);
+    int second = getAtomIndex(rotamer.second);
     
     std::vector<int> atomsToBeConsidered;
     std::vector<int> successorsIndex;
@@ -171,13 +171,13 @@ void Molecule::setEdge(int src, int dest)
 }
 
 /*
- It returns the list of rotators in the molecule and so all the non-terminal and not-in-cycle links
- @return the list of rotator in the molecule
+ It returns the list of rotamers in the molecule and so all the non-terminal and not-in-cycle links
+ @return the list of rotamer in the molecule
  */
-std::vector<pair<Atom, Atom>> Molecule::getRotators()
+std::vector<pair<Atom, Atom>> Molecule::getRotamers()
 {
-    std::vector<pair<Atom, Atom>> rotatorsWithCycles;
-    std::vector<pair<Atom, Atom>> rotators;
+    std::vector<pair<Atom, Atom>> rotamersWithCycles;
+    std::vector<pair<Atom, Atom>> rotamers;
     std::vector<Atom>::iterator firstAtomIt = atoms.begin();
     std::vector<list<int> >::iterator firstListElement = links.begin();
     
@@ -188,25 +188,25 @@ std::vector<pair<Atom, Atom>> Molecule::getRotators()
         {
             std::vector<Atom>::iterator secondAtomIt = atoms.begin();
             
-            bool isRotator = (link.size() > 1) && ((*(firstListElement + *it)).size() > 1);
-            if (isRotator)/*link non finali e non in un ciclo*/
+            bool isRotamer = (link.size() > 1) && ((*(firstListElement + *it)).size() > 1);
+            if (isRotamer)/*link non finali e non in un ciclo*/
             {
                 secondAtomIt += *it;
-                pair<Atom, Atom> rotator = make_pair(*firstAtomIt, *secondAtomIt);
-                rotatorsWithCycles.push_back(rotator);
+                pair<Atom, Atom> rotamer = make_pair(*firstAtomIt, *secondAtomIt);
+                rotamersWithCycles.push_back(rotamer);
             }
         }
         firstAtomIt += 1;
     }
     
-    //cycles that identifies all rotator deleting those that are in a cycle
-    for (pair<Atom, Atom> rotator : rotatorsWithCycles)
+    //cycles that identifies all rotamer deleting those that are in a cycle
+    for (pair<Atom, Atom> rotamer : rotamersWithCycles)
     {
-        if (!isRotatorInCycle(rotator))
-            rotators.push_back(rotator);
+        if (!isRotamerInCycle(rotamer))
+            rotamers.push_back(rotamer);
     }
     
-    return rotators;
+    return rotamers;
 }
 
 /*
@@ -225,13 +225,13 @@ std::vector<int> Molecule::getSuccessor(int atom)
 }
 
 /*
-@rotator the rotator of which we want to know the successors
-@return the successors of the rotator
+@rotamer the rotamer of which we want to know the successors
+@return the successors of the rotamer
 */
-std::vector<int> Molecule::getRotatorSuccessors(std::pair<Atom, Atom> rotator)
+std::vector<int> Molecule::getRotamerSuccessors(std::pair<Atom, Atom> rotamer)
 {
-	int first = getAtomIndex(rotator.first);
-	int second = getAtomIndex(rotator.second);
+	int first = getAtomIndex(rotamer.first);
+	int second = getAtomIndex(rotamer.second);
 
 	std::vector<int> atomsToBeConsidered;
 	std::vector<int> successorsIndex;

@@ -62,10 +62,10 @@ private:
     std::vector<std::list<int> > links;
     
     /*
-     @rotator the rotator that we want to verify if it is in a cycle
-     @return a boolean that indicates if the rotator is in a cycle
+     @rotamer the rotamer that we want to verify if it is in a cycle
+     @return a boolean that indicates if the rotamer is in a cycle
      */
-    bool isRotatorInCycle(std::pair<Atom, Atom> rotator);
+    bool isRotamerInCycle(std::pair<Atom, Atom> rotamer);
     
 public:
     
@@ -96,10 +96,10 @@ public:
     void setEdge(int src, int dest);
     
     /*
-     It returns the list of rotators in the molecule and so all the non-terminal and not-in-cycle links
-     @return the list of rotator in the molecule
+     It returns the list of rotamers in the molecule and so all the non-terminal and not-in-cycle links
+     @return the list of rotamer in the molecule
      */
-    std::vector<std::pair<Atom, Atom>> getRotators();
+    std::vector<std::pair<Atom, Atom>> getRotamers();
     
     /*
      @param atom the atom of which we want to know the successor
@@ -108,10 +108,10 @@ public:
     std::vector<int> getSuccessor(int atom);
     
     /*
-     @rotator the rotator of which we want to know the successors
-     @return the successors of the rotator
+     @rotamer the rotamer of which we want to know the successors
+     @return the successors of the rotamer
      */
-    std::vector<int> getRotatorSuccessors(std::pair<Atom, Atom> rotator);
+    std::vector<int> getRotamerSuccessors(std::pair<Atom, Atom> rotamer);
     
     /*
      	@return the list of atoms of the molecule
