@@ -9,8 +9,9 @@ using namespace std;
 using namespace boost::numeric::ublas;
 
 
-//Implementations of class Atom functions
-
+/*
+Implementations of class Atom functions
+*/
 Atom::Atom(float x, float y, float z)
 {
     this->x = x;
@@ -43,41 +44,17 @@ float Atom::getZ()
 }
 
 /*
- 	 set the x coordinate
- */
-void Atom::setVariableX(float x)
-{
-		this->x = x;
-}
-
-/*
- 	 set the y coordinate
- */
-void Atom::setVariableY(float y)
-{
-		this->y = y;
-}
-
-/*
- 	 set the z coordinate
- */
-void Atom::setVariableZ(float z)
-{
-		this->z = z;
-}
-
-/*
- return a string that describe the atom
- */
+return a string that describe the atom
+*/
 string Atom::toString()
 {
     return "x = " + to_string(x) + " y = " + to_string(y) + " z = " + to_string(z);
 }
 
 /*
- The coordinates of the atom are modified in function of the matrix given as parameter
- @param transformationMatrix the matrix that describes the trasformation
- */
+The coordinates of the atom are modified in function of the matrix given as parameter
+@param transformationMatrix the matrix that describes the trasformation
+*/
 void Atom::transform(matrix<float>  transformationMatrix)
 {
     //transform the original vector in omogeneous coordinates in order to do the transformation
@@ -94,10 +71,9 @@ void Atom::transform(matrix<float>  transformationMatrix)
     this->z = homogeneusCoordinatesPoint(2, 0) / homogeneusCoordinatesPoint(3, 0);
 }
 
-
-
-//Implementations of class Molecule functions
-
+/*
+Implementations of class Molecule functions
+*/
 int Molecule::getAtomIndex(Atom atom)
 {
     for (int i = 0; i<atoms.size(); i++)
@@ -111,9 +87,9 @@ int Molecule::getAtomIndex(Atom atom)
 }
 
 /*
- @rotator the rotator that we want to verify if it is in a cycle
- @return a boolean that indicates if the rotator is in a cycle
- */
+@param rotator the rotator that we want to verify if it is in a cycle
+@return a boolean that indicates if the rotator is in a cycle
+*/
 bool Molecule::Molecule::isRotatorInCycle(std::pair<Atom, Atom> rotator)
 {
     int first = getAtomIndex(rotator.first);
@@ -143,6 +119,10 @@ bool Molecule::Molecule::isRotatorInCycle(std::pair<Atom, Atom> rotator)
     return false;
 }
 
+/*
+creates a new molecule
+@param name the name of the molecule
+*/
 Molecule::Molecule(string name)
 {
     this->name = name;
@@ -150,11 +130,19 @@ Molecule::Molecule(string name)
     links.clear();
 }
 
+/*
+sets the name of the molecule
+@param name the name of the molecule
+*/
 void Molecule::setName(string name)
 {
     this->name = name;
 }
 
+/*
+gets the name of the molecule
+@return the name of the molecule
+*/
 string Molecule::getName()
 {
     return name;
@@ -162,7 +150,7 @@ string Molecule::getName()
 
 /*
  it adds an atom to the molecule
- @atom the atom that has to be added
+ @param atom the atom that has to be added
  */
 void Molecule::addAtom(Atom atom)
 {
@@ -173,8 +161,8 @@ void Molecule::addAtom(Atom atom)
 
 /*
  it adds an edge to the molecule
- @src the first element of the edge
- @dest the second element of the edge
+ @param src the first element of the edge
+ @param dest the second element of the edge
  */
 void Molecule::setEdge(int src, int dest)
 {
@@ -266,24 +254,37 @@ std::vector<int> Molecule::getRotatorSuccessors(std::pair<Atom, Atom> rotator)
 	return successorsIndex;
 }
 
+/*
+gets the atoms of the molecule
+@return the atoms of the molecule
+*/
 std::vector<Atom> Molecule::getAtoms()
 {
 	return atoms;
 }
 
+/*
+gets the links of the molecule
+@return the links of the molecule
+*/
 std::vector<std::list<int>> Molecule::getLinks()
 {
 	return links;
 }
 
+/*
+@param transformationMatrix the matrix that describe the transformation
+@param index the index of the atom
+Trasforms the point passed as a parameter
+*/
 void Molecule::transform(matrix<float> transformationMatrix, int index)
 {
 	atoms.at(index).transform(transformationMatrix);
 }
 
 /*
- @return a string that describes the molecule
- */
+@return a string that describes the molecule
+*/
 string Molecule::toString()
 {
     //creates a string with the list of atoms

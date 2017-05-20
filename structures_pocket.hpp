@@ -16,28 +16,28 @@ class Vertex
     public:
         
         /*
-        	 set the latitude
-         */
+        set the latitude
+        */
         void setLatitude(float latitude);
         
         /*
-        	 set the longitude
-         */
+        set the longitude
+        */
         void setLongitude(float longitude);
 
         /*
-            @return the latitude of the 2d point
+        @return the latitude of the 2d point
         */
         float getLatitude();
   
         /*
-            @return the longitude of the 2d point
+        @return the longitude of the 2d point
         */
         float getLongitude();
 
         /*
-         @return a string that describes the 2d vertex
-         */
+        @return a string that describes the 2d vertex
+        */
         std::string toString();
 };
 
@@ -55,9 +55,11 @@ class Pocket
         int i, j;
     
     public:
+
         /*
-         Creates a pocket
-         */
+        Creates a pocket
+        */
+
         Pocket(float latmax, float longmax);
         /*
          Transforms the bidimensional points of a mesh into coordinates of equidistant atoms in the sphere
@@ -69,10 +71,10 @@ class Pocket
          */
         std::string toString();
 
-		/*
-		@return the set of equidistant atoms of the sphere
-		*/
-		std::vector<Atom> getAtoms();
+	/*
+	@return the set of equidistant atoms of the sphere
+	*/
+	std::vector<Atom> getAtoms();
 };
 
 

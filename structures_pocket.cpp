@@ -11,9 +11,10 @@ const float PI = 3.14159265;
 
 
 //Implementations of Vertex class functions
+
 /*
-	 set the latitude
- */
+set the latitude
+*/
 void Vertex::setLatitude(float latitude)
 {
     this->latitude = latitude;
@@ -56,9 +57,10 @@ string Vertex::toString()
 
 
 //Implementations of Pocket class functions
+
 /*
-  Creates a mesh of equidistant (latmax*longmax) 2d points 
- */
+Creates a mesh of equidistant (latmax*longmax) 2d points 
+*/
 Pocket::Pocket(float latmax, float longmax)
 {
     this->latmax=latmax;
@@ -90,10 +92,11 @@ void Pocket::transformation()
     
     for(Vertex vertex: vertexMatrix)
     {
-        Atom vertex3d(0,0,0);
-        vertex3d.setVariableX(sin(PI * vertex.getLatitude() / latmax) *cos(2*PI * vertex.getLongitude() / longmax));
-        vertex3d.setVariableY(sin(PI * vertex.getLatitude() / latmax) *sin(2*PI * vertex.getLongitude() / longmax));
-        vertex3d.setVariableZ(cos(PI * vertex.getLatitude() / latmax));
+	int x, y, z;
+        x = sin(PI * vertex.getLatitude() / latmax) *cos(2*PI * vertex.getLongitude() / longmax);
+        y = sin(PI * vertex.getLatitude() / latmax) *sin(2*PI * vertex.getLongitude() / longmax);
+        z = cos(PI * vertex.getLatitude() / latmax);
+	Atom vertex3d(x, y, z);	
         spherePoints.push_back(vertex3d);
     }
 
@@ -101,10 +104,7 @@ void Pocket::transformation()
     vector<Atom>::iterator end = begin + latmax - 1;
     spherePoints.erase(begin, end);
     
-    Atom vertex(0,0,0);
-    vertex.setVariableX(0);
-    vertex.setVariableY(0);
-    vertex.setVariableZ(-1);
+    Atom vertex(0,0,-1);
     spherePoints.push_back(vertex);
 }
 

@@ -10,6 +10,7 @@
 
 using namespace std;
 using namespace boost::numeric::ublas;
+
 /*
 @param angle the angle that specify the rotation
 @param first the first point that identify the ax of the rotation
@@ -200,5 +201,5 @@ int main()
 	}
 
 	cout << "\n\nThe best score is: " << std::to_string(bestScore);
-	cout << "\n\nThe best molecule is: " << bestMolecule.toString();
+	cout << "\n\nThe best molecule is: " << bestMolecule.toString() << std::endl;
 }
