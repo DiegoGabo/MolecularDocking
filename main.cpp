@@ -129,7 +129,7 @@ int main()
 	//molecule.setEdge(5, 6);
 	//molecule.setEdge(1, 7);
 
-	//std::cout << molecule.toString();
+	//std::cout << molecule.to_string();
 
 	std::vector<Molecule> molecules = parseFile("ace_ligands.mol2", 2);
 	float bestScore = 0;
@@ -154,7 +154,7 @@ int main()
 		//cycle for each rotamer of the molecule
 		for (std::pair<Atom, Atom> rotamer : rotamers)
 		{
-			std::cout << "\n\nI Consider the rotamer " << rotamer.first.toString() << rotamer.second.toString();
+			std::cout << "\n\nI Consider the rotamer " << rotamer.first.to_string() << rotamer.second.to_string();
 
 			//cicle in which all rotations are performed
 			for (int angle = 0; angle<360; angle += 15)
@@ -186,7 +186,7 @@ int main()
 				for (int point : pointsToRotate)
 					molecule.transform(rotationMatrix, point);
 
-				cout << "\nAfter rotation:\n" << molecule.toString();
+				cout << "\nAfter rotation:\n" << molecule.to_string();
 
 				float score = calcolateScore(molecule, pocket);
 
@@ -201,5 +201,5 @@ int main()
 	}
 
 	cout << "\n\nThe best score is: " << std::to_string(bestScore);
-	cout << "\n\nThe best molecule is: " << bestMolecule.toString() << std::endl;
+	cout << "\n\nThe best molecule is: " << bestMolecule.to_string() << std::endl;
 }

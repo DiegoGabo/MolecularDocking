@@ -46,9 +46,9 @@ float Atom::getZ()
 /*
 return a string that describe the atom
 */
-string Atom::toString()
+string Atom::to_string()
 {
-    return "x = " + to_string(x) + " y = " + to_string(y) + " z = " + to_string(z);
+    return "x = " + std::to_string(x) + " y = " + std::to_string(y) + " z = " + std::to_string(z);
 }
 
 /*
@@ -285,14 +285,14 @@ void Molecule::transform(matrix<float> transformationMatrix, int index)
 /*
 @return a string that describes the molecule
 */
-string Molecule::toString()
+string Molecule::to_string()
 {
     //creates a string with the list of atoms
     string molecule = "The molecule has the following atoms";
     for (Atom atom : atoms)
     {
         molecule += "\n";
-        molecule += atom.toString();
+        molecule += atom.to_string();
     }
     
     //creates a string with the structure of the graph
@@ -301,11 +301,11 @@ string Molecule::toString()
     {
         std::vector<int> successors = getSuccessor(atom);
         molecule += "\nAtom ";
-        molecule += to_string(atom);
+        molecule += std::to_string(atom);
         molecule += " linked to: ";
         for (int succ : successors)
         {
-            molecule += to_string(succ);
+            molecule += std::to_string(succ);
             molecule += ", ";
         }
     }

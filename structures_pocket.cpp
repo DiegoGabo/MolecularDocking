@@ -44,13 +44,13 @@ float Vertex::getLongitude()
 /*
  @return a string that describes the 2d vertex
  */
-string Vertex::toString()
+string Vertex::to_string()
 {
     string vertex;
     vertex="Vertex with latitude ";
-    vertex += to_string(latitude);
+    vertex += std::to_string(latitude);
     vertex += " and longitude ";
-    vertex += to_string(longitude);
+    vertex += std::to_string(longitude);
     
     return vertex;
 }
@@ -111,20 +111,20 @@ void Pocket::transformation()
 /*
  @return a string that describes the pocket and the transformation
  */
-string Pocket::toString()
+string Pocket::to_string()
 {
     string pocket = "The vector2d:";
     for (Vertex vertex: vertexMatrix)
     {
         pocket += "\n";
-        pocket += vertex.toString();
+        pocket += vertex.to_string();
     }
     
     pocket += "\nThe sphere:";
     for (Atom vertex3D: spherePoints)
     {
         pocket += "\n";
-        pocket += vertex3D.toString();
+        pocket += vertex3D.to_string();
     }
     return pocket;
 }

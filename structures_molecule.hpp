@@ -38,7 +38,7 @@ public:
      /*
      return a string that describe the atom
      */
-    std::string toString();
+    std::string to_string();
     
     /*
      The coordinates of the atom are modified in function of the matrix given as parameter
@@ -133,7 +133,7 @@ public:
     /*
      @return a string that describes the molecule
      */
-    std::string toString();
+    std::string to_string();
 };
 
 

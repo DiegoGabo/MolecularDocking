@@ -38,7 +38,7 @@ class Vertex
         /*
         @return a string that describes the 2d vertex
         */
-        std::string toString();
+        std::string to_string();
 };
 
 
@@ -69,7 +69,7 @@ class Pocket
         /*
          @return a string that describes the pocket and the transformation
          */
-        std::string toString();
+        std::string to_string();
 
 	/*
 	@return the set of equidistant atoms of the sphere
