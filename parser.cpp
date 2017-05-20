@@ -14,7 +14,11 @@ const string MOLECULE_ATOMS ("@<TRIPOS>ATOM");
 const string MOLECULE_BONDS ("@<TRIPOS>BOND");
 const string MOLECULE_NULL ("EMPTY MOLECULE");
 
-
+/*
+ This method takes a string and returns a vector containing each word that composes the string
+ @param the string to analyse
+ @return a vector containing string
+ */
 vector<string> splitLine(string& line)
 {
     vector<string> elements;
@@ -42,9 +46,17 @@ vector<string> splitLine(string& line)
 }
 
 
+/*
+This method takes a file as parameter and returns a vectors containing the molecules described in the file
+ @param a file to be parsed
+ @return a vector containing molecules
+ */
 vector<Molecule> parseFile(string n, int l)
 {
     vector<Molecule> molecules;
+    
+    if(l == 0)
+        return molecules.clear();
     
     fstream ligands(n);
     
@@ -53,7 +65,12 @@ vector<Molecule> parseFile(string n, int l)
         string line;
         vector<string> text_elements;
 
-        int limit = -l;
+        int limit = 0;
+        
+        if (l < -1)
+            limit = l
+        else
+            limit = -l
         
         Molecule* temp_molecule = new Molecule(MOLECULE_NULL);
         
