@@ -56,7 +56,9 @@ vector<Molecule> parseFile(string n, int l)
     vector<Molecule> molecules;
     
     if(l == 0)
-        return molecules.clear();
+    {
+        molecules.clear();
+    }
     
     fstream ligands(n);
     
@@ -68,9 +70,9 @@ vector<Molecule> parseFile(string n, int l)
         int limit = 0;
         
         if (l < -1)
-            limit = l
+            limit = l;
         else
-            limit = -l
+            limit = -l;
         
         Molecule* temp_molecule = new Molecule(MOLECULE_NULL);
         
