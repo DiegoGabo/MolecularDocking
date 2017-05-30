@@ -97,41 +97,42 @@ float calcolateScore(Molecule ligand, Pocket pocket)
 int main()
 {
 	////creation of a molecule in order to text the rotations
-	//Molecule molecule("TESTING MOLECULE");
+	Molecule molecule("TESTING MOLECULE");
 
-	////creation of all the atoms
-	//Atom a1(0, 1, 0);
-	//Atom a2(0, -1, 0);
-	//Atom a3(1, 0, 0);
-	//Atom a4(2, 0, 0);
-	//Atom a5(3, 1, 0);
-	//Atom a6(3, -1, 0);
-	//Atom a7(4, 0, 0);
-	//Atom a8(-1, -1, 0);
+	//creation of all the atoms
+	Atom a1(0, 1, 0);
+	Atom a2(0, -1, 0);
+	Atom a3(1, 0, 0);
+	Atom a4(2, 0, 0);
+	Atom a5(3, 1, 0);
+	Atom a6(3, -1, 0);
+	Atom a7(4, 0, 0);
+	Atom a8(-1, -1, 0);
 
 	////atoms added to molecule
-	//molecule.addAtom(a1);
-	//molecule.addAtom(a2);
-	//molecule.addAtom(a3);
-	//molecule.addAtom(a4);
-	//molecule.addAtom(a5);
-	//molecule.addAtom(a6);
-	//molecule.addAtom(a7);
-	//molecule.addAtom(a8);
+	molecule.addAtom(a1);
+	molecule.addAtom(a2);
+	molecule.addAtom(a3);
+	molecule.addAtom(a4);
+	molecule.addAtom(a5);
+	molecule.addAtom(a6);
+	molecule.addAtom(a7);
+	molecule.addAtom(a8);
 
 	////edges added to molecule
-	//molecule.setEdge(0, 2);
-	//molecule.setEdge(1, 2);
-	//molecule.setEdge(2, 3);
-	//molecule.setEdge(3, 4);
-	//molecule.setEdge(3, 5);
-	//molecule.setEdge(4, 6);
-	//molecule.setEdge(5, 6);
-	//molecule.setEdge(1, 7);
+	molecule.setEdge(0, 2);
+	molecule.setEdge(1, 2);
+	molecule.setEdge(2, 3);
+	molecule.setEdge(3, 4);
+	molecule.setEdge(3, 5);
+	molecule.setEdge(4, 6);
+	molecule.setEdge(5, 6);
+	molecule.setEdge(1, 7);
 
-	//std::cout << molecule.to_string();
+	std::cout << molecule.to_string();
 
-	std::vector<Molecule> molecules = parseFile("ace_ligands.mol2", 1);
+	std::vector<Molecule> molecules;
+	molecules.push_back(molecule);
 	float bestScore = 0;
 	Molecule bestMolecule("");
 
@@ -157,7 +158,7 @@ int main()
 			std::cout << "\n\nI Consider the rotamer " << rotamer.first.to_string() << rotamer.second.to_string();
 
 			//cicle in which all rotations are performed
-			for (int angle = 0; angle<360; angle += 120)
+			for (int angle = 0; angle<360; angle += 15)
 			{
 
 				//create a copy of the molecule that has to be rotated
@@ -198,7 +199,9 @@ int main()
 				cout << "\nThe score is: " << std::to_string(score);
 			}
 		}
+
 	}
+
 	cout << "\n\nThe best score is: " << std::to_string(bestScore);
-	cout << "\n\nBest molecule:\n " << bestMolecule.to_string() << std::endl;
+	cout << "\n\nThe best molecule is: " << bestMolecule.to_string() << std::endl;
 }
