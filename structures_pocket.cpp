@@ -93,19 +93,19 @@ void Pocket::transformation()
     float latAlfa,latBeta,lonAlfa,lonBeta,phi;
     
     latAlfa= (vertexMatrix.at(2*latmax).getLatitude()*PI)/180;
-    latBeta= (vertexMatrix.at(2*latmax).getLatitude()*PI)/180;
-	lonAlfa= (vertexMatrix.at(2*latmax+1).getLongitude()*PI)/180;
-	lonBeta= (vertexMatrix.at(2*latmax+1).getLongitude*PI)/180;
+    latBeta= (vertexMatrix.at(2*latmax+1).getLatitude()*PI)/180;
+	lonAlfa= (vertexMatrix.at(2*latmax).getLongitude()*PI)/180;
+	lonBeta= (vertexMatrix.at(2*latmax+1).getLongitude()*PI)/180;
 	phi=fabs(lonAlfa-lonBeta);
-    float radius= distance/(arcos(sin(latBeta)*sin(latAlfa)+cos(latBeta)*cos(latAlfa)*cos(phi)));
+    float radius= distance/(acos(sin(latBeta)*sin(latAlfa)+cos(latBeta)*cos(latAlfa)*cos(phi)));
     
     for(Vertex vertex: vertexMatrix)
     {
-    	int x, y, z;
+    	float x, y, z;
         x = sin(PI * vertex.getLatitude() / latmax) *cos(2*PI * vertex.getLongitude() / longmax);
         y = sin(PI * vertex.getLatitude() / latmax) *sin(2*PI * vertex.getLongitude() / longmax);
         z = cos(PI * vertex.getLatitude() / latmax);
-        Atom vertex3d(radius*x, radius*y, radius*z);	
+        Atom vertex3d(radius * x, radius * y, radius * z);	
         spherePoints.push_back(vertex3d);
     }
 
@@ -113,7 +113,7 @@ void Pocket::transformation()
     vector<Atom>::iterator end = begin + latmax - 1;
     spherePoints.erase(begin, end);
     
-    Atom vertex(0,0,-1);
+    Atom vertex(0,0,-1 * radius);
     spherePoints.push_back(vertex);
 
 }

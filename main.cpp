@@ -136,7 +136,7 @@ int main()
 	Molecule bestMolecule("");
 
 	//create the pocket
-	Pocket pocket(10, 10);
+	Pocket pocket(5, 5, 0.2);
 	pocket.transformation();
 
 	for (Molecule molecule : molecules)
