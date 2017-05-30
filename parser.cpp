@@ -56,9 +56,7 @@ vector<Molecule> parseFile(string n, int l)
     vector<Molecule> molecules;
     
     if(l == 0)
-    {
-        molecules.clear();
-    }
+        return molecules;
     
     fstream ligands(n);
     
