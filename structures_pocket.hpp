@@ -47,7 +47,7 @@ class Pocket
 {
     private:
     
-        float longmax,latmax;
+        float longmax,latmax,distance;
         
         std::vector<Vertex> vertexMatrix;
         std::vector<Atom> spherePoints;
@@ -60,7 +60,7 @@ class Pocket
         Creates a pocket
         */
 
-        Pocket(float latmax, float longmax);
+        Pocket(float latmax, float longmax,float distance);
         /*
          Transforms the bidimensional points of a mesh into coordinates of equidistant atoms in the sphere
          */
