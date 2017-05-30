@@ -23,17 +23,17 @@ public:
     /*
      @return the x coordinate
      */
-    float getX();
+    float getX() const;
     
     /*
      @return the y coordinate
      */
-    float getY();
+    float getY() const;
     
     /*
      @return the z coordinate
      */
-    float getZ();
+    float getZ() const;
 
      /*
      return a string that describe the atom
@@ -44,7 +44,7 @@ public:
      The coordinates of the atom are modified in function of the matrix given as parameter
      @param transformationMatrix the matrix that describes the trasformation
      */
-    void transform(boost::numeric::ublas::matrix<float>  transformationMatrix);
+    void transform(const boost::numeric::ublas::matrix<float> &  transformationMatrix);
 };
 
 
@@ -65,7 +65,7 @@ private:
      @rotamer the rotamer that we want to verify if it is in a cycle
      @return a boolean that indicates if the rotamer is in a cycle
      */
-    bool isRotamerInCycle(std::pair<Atom, Atom> rotamer);
+    bool isRotamerInCycle(const std::pair<Atom, Atom> rotamer);
     
 public:
     
@@ -73,20 +73,20 @@ public:
     
     void setName(std::string name);
     
-    std::string getName();
+    std::string getName() const;
     
     /*
      it adds an atom to the molecule
      @atom the atom that has to be added
      */
-    void addAtom(Atom atom);
+    void addAtom(const Atom atom);
     
     /*
      returns the index of vector atoms that corresponds to the atom passed as a parameter
      @param atom the atom of which we want to know the index
      @return the index of atoms in which there is the atom passed as a paramater
      */
-    int getAtomIndex(Atom atom);
+    int getAtomIndex(const Atom atom) const;
     
     /*
      it adds an edge to the molecule
@@ -105,30 +105,30 @@ public:
      @param atom the atom of which we want to know the successor
      @return the list of atoms connected to the atom passed as a parameter
      */
-    std::vector<int> getSuccessor(int atom);
+    std::vector<int> getSuccessor(int atom) const;
     
     /*
      @rotamer the rotamer of which we want to know the successors
      @return the successors of the rotamer
      */
-    std::vector<int> getRotamerSuccessors(std::pair<Atom, Atom> rotamer);
+    std::vector<int> getRotamerSuccessors(const std::pair<Atom, Atom> rotamer) const;
     
     /*
      	@return the list of atoms of the molecule
      */
-	std::vector<Atom> getAtoms();
+	std::vector<Atom> getAtoms() const;
     
     /*
      	@return the list of links of the molecule
      */
-	std::vector<std::list<int>> getLinks();
+	std::vector<std::list<int>> getLinks() const;
 
     /*
      * @param transformationMatrix the matrix that describe the transformation
      * @param index the index of the atom
      	Trasforms the point passed as a parameter
      */
-    void transform(boost::numeric::ublas::matrix<float>  transformationMatrix, int index);
+    void transform(const boost::numeric::ublas::matrix<float> & transformationMatrix, int index);
 
     /*
      @return a string that describes the molecule

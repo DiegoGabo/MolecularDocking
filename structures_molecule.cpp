@@ -22,7 +22,7 @@ Atom::Atom(float x, float y, float z)
 /*
  @return the x coordinate
  */
-float Atom::getX()
+float Atom::getX() const
 {
     return x;
 }
@@ -30,7 +30,7 @@ float Atom::getX()
 /*
  @return the y coordinate
  */
-float Atom::getY()
+float Atom::getY() const
 {
     return y;
 }
@@ -38,7 +38,7 @@ float Atom::getY()
 /*
  @return the z coordinate
  */
-float Atom::getZ()
+float Atom::getZ() const
 {
     return z;
 }
@@ -55,7 +55,7 @@ string Atom::to_string()
 The coordinates of the atom are modified in function of the matrix given as parameter
 @param transformationMatrix the matrix that describes the trasformation
 */
-void Atom::transform(matrix<float>  transformationMatrix)
+void Atom::transform(const matrix<float> & transformationMatrix)
 {
     //transform the original vector in omogeneous coordinates in order to do the transformation
     matrix<float> homogeneusCoordinatesPoint(4, 1);
@@ -74,7 +74,7 @@ void Atom::transform(matrix<float>  transformationMatrix)
 /*
 Implementations of class Molecule functions
 */
-int Molecule::getAtomIndex(Atom atom)
+int Molecule::getAtomIndex(const Atom atom) const
 {
     for (int i = 0; i<atoms.size(); i++)
     {
@@ -90,7 +90,7 @@ int Molecule::getAtomIndex(Atom atom)
 @param rotamer the rotamer that we want to verify if it is in a cycle
 @return a boolean that indicates if the rotamer is in a cycle
 */
-bool Molecule::Molecule::isRotamerInCycle(std::pair<Atom, Atom> rotamer)
+bool Molecule::Molecule::isRotamerInCycle(const std::pair<Atom, Atom> rotamer)
 {
     int first = getAtomIndex(rotamer.first);
     int second = getAtomIndex(rotamer.second);
@@ -143,7 +143,7 @@ void Molecule::setName(string name)
 gets the name of the molecule
 @return the name of the molecule
 */
-string Molecule::getName()
+string Molecule::getName() const
 {
     return name;
 }
@@ -152,7 +152,7 @@ string Molecule::getName()
  it adds an atom to the molecule
  @param atom the atom that has to be added
  */
-void Molecule::addAtom(Atom atom)
+void Molecule::addAtom(const Atom atom)
 {
     atoms.push_back(atom);
     list<int> link;
@@ -174,7 +174,7 @@ void Molecule::setEdge(int src, int dest)
  It returns the list of rotamers in the molecule and so all the non-terminal and not-in-cycle links
  @return the list of rotamer in the molecule
  */
-std::vector<pair<Atom, Atom>> Molecule::getRotamers()
+std::vector<pair<Atom, Atom>> Molecule::getRotamers() 
 {
     std::vector<pair<Atom, Atom>> rotamersWithCycles;
     std::vector<pair<Atom, Atom>> rotamers;
@@ -202,7 +202,7 @@ std::vector<pair<Atom, Atom>> Molecule::getRotamers()
     //cycles that identifies all rotamer deleting those that are in a cycle
     for (pair<Atom, Atom> rotamer : rotamersWithCycles)
     {
-        if (!isRotamerInCycle(rotamer))
+        if (!isRotamerInCycle(rotamer) && getAtomIndex(rotamer.first) < getAtomIndex(rotamer.second))
             rotamers.push_back(rotamer);
     }
     
@@ -213,7 +213,7 @@ std::vector<pair<Atom, Atom>> Molecule::getRotamers()
  @param atom the atom of which we want to know the successor
  @return the list of atoms connected to the atom passed as a parameter
  */
-std::vector<int> Molecule::getSuccessor(int atom)
+std::vector<int> Molecule::getSuccessor(int atom) const
 {
     std::vector<int> successors;
     list<int> link = links.at(atom);
@@ -228,7 +228,7 @@ std::vector<int> Molecule::getSuccessor(int atom)
 @rotamer the rotamer of which we want to know the successors
 @return the successors of the rotamer
 */
-std::vector<int> Molecule::getRotamerSuccessors(std::pair<Atom, Atom> rotamer)
+std::vector<int> Molecule::getRotamerSuccessors(const std::pair<Atom, Atom> rotamer) const
 {
 	int first = getAtomIndex(rotamer.first);
 	int second = getAtomIndex(rotamer.second);
@@ -258,7 +258,7 @@ std::vector<int> Molecule::getRotamerSuccessors(std::pair<Atom, Atom> rotamer)
 gets the atoms of the molecule
 @return the atoms of the molecule
 */
-std::vector<Atom> Molecule::getAtoms()
+std::vector<Atom> Molecule::getAtoms() const
 {
 	return atoms;
 }
@@ -267,7 +267,7 @@ std::vector<Atom> Molecule::getAtoms()
 gets the links of the molecule
 @return the links of the molecule
 */
-std::vector<std::list<int>> Molecule::getLinks()
+std::vector<std::list<int>> Molecule::getLinks() const
 {
 	return links;
 }
@@ -277,7 +277,7 @@ std::vector<std::list<int>> Molecule::getLinks()
 @param index the index of the atom
 Trasforms the point passed as a parameter
 */
-void Molecule::transform(matrix<float> transformationMatrix, int index)
+void Molecule::transform(const matrix<float> & transformationMatrix, int index)
 {
 	atoms.at(index).transform(transformationMatrix);
 }

@@ -17,7 +17,7 @@ using namespace boost::numeric::ublas;
 @param second the second point that identify the ax of the rotation
 @return the matrix that describes the rotation
 */
-matrix<float> createRotationMatrix(int angle, Atom first, Atom second)
+matrix<float> createRotationMatrix(int angle, const Atom first, const Atom second)
 {
 	matrix<float>  rotationMatrix(4, 4);
 
@@ -58,7 +58,7 @@ matrix<float> createRotationMatrix(int angle, Atom first, Atom second)
 @param a2 the second atom
 return the euclidean distance of the atoms passed as a parameter
 */
-float euclideanDistance(Atom a1, Atom a2)
+float euclideanDistance(const Atom a1, const Atom a2)
 {
 	return sqrt(pow((a1.getX() - a2.getX()), 2) + pow((a1.getY() - a2.getY()), 2) + pow((a1.getZ() - a2.getZ()), 2));
 }
@@ -68,7 +68,7 @@ float euclideanDistance(Atom a1, Atom a2)
 @param pocket the pocket in which the ligand has to merge
 @return a score that indicates how the ligand fix the pocket
 */
-float calcolateScore(Molecule ligand, Pocket pocket)
+float calcolateScore(const Molecule & ligand, const Pocket & pocket)
 {
 	const float my_epsilon = 1.0e-16f;
 	float score = 0.0f;
@@ -94,43 +94,60 @@ float calcolateScore(Molecule ligand, Pocket pocket)
 	return static_cast<float>(ligand.getAtoms().size()) / score;
 }
 
+/*
+@param the molecule that has to be copied
+@the new molecule created
+*/
+Molecule copyMolecule(const Molecule & molecule)
+{
+	Molecule newMolecule(molecule.getName());
+	for (Atom atom : molecule.getAtoms())
+		newMolecule.addAtom(atom);
+
+	std::vector<std::list<int>> links = molecule.getLinks();
+	for (int src = 0; src < links.size(); src++)
+	{
+		for (int dest : links.at(src))
+			if(src < dest)
+				newMolecule.setEdge(src, dest);
+	}
+	return newMolecule;
+}
+
+/*
+@molecule the molecule that has to be rotated
+@moleculeRotated the molecule after the rotation
+@angle the angle of the rotation
+@rotamer the ax or the rotation
+@pocket the pocket necessary for calculating the score
+@score the score of the rotation
+*/
+float rotateMolecule(const Molecule & molecule, Molecule & moleculeRotated, int angle, const std::pair<Atom, Atom> rotamer, const Pocket & pocket)
+{
+	moleculeRotated = copyMolecule(molecule);
+	std::vector<int> pointsToRotate;
+	pointsToRotate = molecule.getRotamerSuccessors(rotamer);
+
+	cout << "\n\nI want to rotate the following points of " << std::to_string(angle) << " degree:\t";
+	for (int point : pointsToRotate)
+		cout << std::to_string(point) << " ";
+
+	matrix<float> rotationMatrix = createRotationMatrix(angle, rotamer.first, rotamer.second);
+	cout << "\n\nThis is the rotation matrix:\n" << rotationMatrix << std::endl;
+
+	//the for loop applies the rotation to all points in pointsToRotate
+	for (int point : pointsToRotate)
+		moleculeRotated.transform(rotationMatrix, point);
+
+	cout << "\nAfter rotation:\n" << moleculeRotated.to_string();
+	float score = calcolateScore(moleculeRotated, pocket);
+	cout << "\nScore" << std::to_string(score);
+	
+	return score;
+}
+
 int main()
 {
-	////creation of a molecule in order to text the rotations
-	//Molecule molecule("TESTING MOLECULE");
-
-	////creation of all the atoms
-	//Atom a1(0, 1, 0);
-	//Atom a2(0, -1, 0);
-	//Atom a3(1, 0, 0);
-	//Atom a4(2, 0, 0);
-	//Atom a5(3, 1, 0);
-	//Atom a6(3, -1, 0);
-	//Atom a7(4, 0, 0);
-	//Atom a8(-1, -1, 0);
-
-	////atoms added to molecule
-	//molecule.addAtom(a1);
-	//molecule.addAtom(a2);
-	//molecule.addAtom(a3);
-	//molecule.addAtom(a4);
-	//molecule.addAtom(a5);
-	//molecule.addAtom(a6);
-	//molecule.addAtom(a7);
-	//molecule.addAtom(a8);
-
-	////edges added to molecule
-	//molecule.setEdge(0, 2);
-	//molecule.setEdge(1, 2);
-	//molecule.setEdge(2, 3);
-	//molecule.setEdge(3, 4);
-	//molecule.setEdge(3, 5);
-	//molecule.setEdge(4, 6);
-	//molecule.setEdge(5, 6);
-	//molecule.setEdge(1, 7);
-
-	//std::cout << molecule.to_string();
-
 	std::vector<Molecule> molecules = parseFile("ace_ligands.mol2", 1);
 	float bestScore = 0;
 	Molecule bestMolecule("");
@@ -155,47 +172,37 @@ int main()
 		for (std::pair<Atom, Atom> rotamer : rotamers)
 		{
 			std::cout << "\n\nI Consider the rotamer " << rotamer.first.to_string() << rotamer.second.to_string();
+			
+			float bestLocalScore = 0;
+			Molecule bestLocalMolecule(molecule.getName());
 
-			//cicle in which all rotations are performed
+			//cicles in which all rotations are performed 
 			for (int angle = 0; angle<360; angle += 120)
 			{
-
-				//create a copy of the molecule that has to be rotated
 				Molecule moleculeRotated = Molecule(molecule.getName());
-				for (Atom atom : molecule.getAtoms())
-					moleculeRotated.addAtom(atom);
-
-				std::vector<std::list<int>> links = molecule.getLinks();
-				for (int src = 0; src < links.size(); src++)
+				float score = rotateMolecule(molecule, moleculeRotated, angle, rotamer, pocket);
+				if (score > bestLocalScore)
 				{
-					for (int dest : links.at(src))
-						moleculeRotated.setEdge(src, dest);
+					bestLocalMolecule = copyMolecule(moleculeRotated);
+					bestLocalScore = score;
 				}
-
-				std::vector<int> pointsToRotate;
-				pointsToRotate = molecule.getRotamerSuccessors(rotamer);
-
-				cout << "\n\nI want to rotate the following points of " << std::to_string(angle) << " degree:\t";
-				for (int point : pointsToRotate)
-					cout << std::to_string(point) << " ";
-
-				matrix<float> rotationMatrix = createRotationMatrix(angle, rotamer.first, rotamer.second);
-				cout << "\n\nThis is the rotation matrix:\n" << rotationMatrix << std::endl;
-
-				//the for loop applies the rotation to all points in pointsToRotate
-				for (int point : pointsToRotate)
-					molecule.transform(rotationMatrix, point);
-
-				cout << "\nAfter rotation:\n" << molecule.to_string();
-
-				float score = calcolateScore(molecule, pocket);
-
-				if (score > bestScore)
+			}
+			
+			for (int angle = 0; angle<360; angle += 120)
+			{
+				Molecule moleculeRotated = Molecule(bestLocalMolecule.getName());
+				float score = rotateMolecule(bestLocalMolecule, moleculeRotated, angle, make_pair(rotamer.second, rotamer.first), pocket);
+				if (score > bestLocalScore)
 				{
-					bestMolecule = molecule;
-					bestScore = score;
+					bestLocalMolecule = copyMolecule(moleculeRotated);
+					bestLocalScore = score;
 				}
-				cout << "\nThe score is: " << std::to_string(score);
+			}
+
+			if(bestLocalScore > bestScore)
+			{
+				bestMolecule = copyMolecule(bestLocalMolecule);
+				bestScore = bestLocalScore;			
 			}
 		}
 	}

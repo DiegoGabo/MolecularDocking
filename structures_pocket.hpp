@@ -74,7 +74,7 @@ class Pocket
 	/*
 	@return the set of equidistant atoms of the sphere
 	*/
-	std::vector<Atom> getAtoms();
+	std::vector<Atom> getAtoms() const;
 };
 
 

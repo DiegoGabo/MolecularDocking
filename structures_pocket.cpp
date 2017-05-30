@@ -80,7 +80,7 @@ Pocket::Pocket(float latmax, float longmax,float distance)
 /*
  @return the set of equidistant atoms of the sphere
  */
-vector<Atom> Pocket::getAtoms()
+vector<Atom> Pocket::getAtoms() const
 {
     return spherePoints;
 }
