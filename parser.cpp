@@ -51,14 +51,14 @@ This method takes a file as parameter and returns a vectors containing the molec
  @param a file to be parsed
  @return a vector containing molecules
  */
-vector<Molecule> parseFile(string n, int l)
+vector<Molecule> parseFile(string name, int l)
 {
     vector<Molecule> molecules;
     
     if(l == 0)
         return molecules;
     
-    fstream ligands(n);
+    fstream ligands(name);
     
     if( ligands.is_open())
     {
@@ -67,8 +67,11 @@ vector<Molecule> parseFile(string n, int l)
 
         int limit = 0;
         
-        if (l < -1)
+        //if limit is zero the parser will read all the ligands
+        if (l < 0)
             limit = l;
+        else if( l == 0)
+            limit = 1;
         else
             limit = -l;
         
