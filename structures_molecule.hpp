@@ -76,6 +76,18 @@ public:
     std::string getName() const;
     
     /*
+     Centres the molecule in its mass center
+     */
+    void centre(){
+    
+    /*
+     Creates the translation matrix of the molecule in its mass center
+     @param xcm, ycm, zcm the coordinates of the mass center
+     @return the translation matrix
+     */
+    matrix<float> createTranslationMatrix(float xcm, float ycm, float zcm);
+    
+    /*
      it adds an atom to the molecule
      @atom the atom that has to be added
      */

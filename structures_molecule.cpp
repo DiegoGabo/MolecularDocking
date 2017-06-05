@@ -72,6 +72,65 @@ void Atom::transform(const matrix<float> & transformationMatrix)
 }
 
 /*
+ Centres the molecule in its mass center
+ */
+void Molecule::centre(){
+	
+	float x_cm=0;
+	float y_cm=0;
+	float z_cm=0;
+	
+	for(Atom atom: molecule.getAtoms()){
+		
+		x_cm += atom.getX();
+		y_cm += atom.getY();
+		z_cm += atom.getZ();
+		
+	}
+	
+	x_cm= x_cm/molecule.getAtoms().size();
+	y_cm= y_cm/molecule.getAtoms().size();
+	z_cm= z_cm/molecule.getAtoms().size();
+	
+	matrix<float> translationMatrix= createTranslationMatrix(x_cm, y_cm, z_cm);
+	
+	for(Atom atom: molecule.getAtoms()){
+		
+		atom.transform(translationMatrix);
+	}
+
+}
+
+/*
+ Creates the translation matrix of the molecule in its mass center
+ @param xcm, ycm, zcm the coordinates of the mass center
+ @return the translation matrix
+ */
+matrix<float> Molecule:: createTranslationMatrix(float xcm, float ycm, float zcm)
+{
+	matrix<float>  translationMatrix(4, 4);
+
+	translationMatrix(0,0) = 1.0;
+	translationMatrix(0,1) = 0.0;
+	translationMatrix(0,2) = 0.0;
+	translationMatrix(0,3) = -xcm;
+	translationMatrix(1,0) = 0.0;
+	translationMatrix(1,1) = 1.0;
+	translationMatrix(1,2) = 0.0;
+	translationMatrix(1,3) = -ycm;
+	translationMatrix(2,0) = 0.0;
+	translationMatrix(2,1) = 0.0;
+	translationMatrix(2,2) = 1.0;
+	translationMatrix(2,3) = -zcm;
+	translationMatrix(3,0) = 0.0;
+	translationMatrix(3,1) = 0.0;
+	translationMatrix(3,2) = 0.0;
+	translationMatrix(3,3) = 1.0;
+
+	return translationMatrix;
+}
+
+/*
 Implementations of class Molecule functions
 */
 int Molecule::getAtomIndex(const Atom atom) const
