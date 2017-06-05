@@ -8,6 +8,8 @@
 #include "structures_molecule.hpp"
 #include "structures_pocket.hpp"
 #include "parser.hpp"
+#define DEBUG
+#undef DEBUG
 
 using namespace std;
 using namespace boost::numeric::ublas;
@@ -130,21 +132,32 @@ float rotateMolecule(const Molecule & molecule, Molecule & moleculeRotated, int 
 	moleculeRotated = copyMolecule(molecule);
 	std::vector<int> pointsToRotate;
 	pointsToRotate = molecule.getRotamerSuccessors(rotamer);
-
+	
+	#ifdef DEBUG
 	cout << "\n\nI want to rotate the following points of " << std::to_string(angle) << " degree:\t";
 	for (int point : pointsToRotate)
 		cout << std::to_string(point) << " ";
-
+    #endif DEBUG
+	
 	matrix<float> rotationMatrix = createRotationMatrix(angle, rotamer.first, rotamer.second);
+	
+    #ifdef DEBUG
 	cout << "\n\nThis is the rotation matrix:\n" << rotationMatrix << std::endl;
-
+    #endif DEBUG
+	
 	//the for loop applies the rotation to all points in pointsToRotate
 	for (int point : pointsToRotate)
 		moleculeRotated.transform(rotationMatrix, point);
-
+	
+	#ifdef DEBUG
 	cout << "\nAfter rotation:\n" << moleculeRotated.to_string();
+	#endif DEBUG
+	
 	float score = calcolateScore(moleculeRotated, pocket);
+	
+	#ifdef DEBUG
 	cout << "\nScore" << std::to_string(score);
+	#endif DEBUG
 	
 	return score;
 }
@@ -185,19 +198,26 @@ int main(int argc, char *argv[])
     for (Molecule molecule : molecules)
     {
         //get all the rotamers of the molecule
+    	molecule.centre();
         std::vector<std::pair<Atom, Atom>> rotamers = molecule.getRotamers();
         int rotamerNumber = 1;
+		#ifdef DEBUG
         std::cout << "\n\nList of rotamers";
+		#ifdef DEBUG
         for (std::pair<Atom, Atom> rotamer : rotamers)
-        {
+        {	
+			#ifdef DEBUG
             cout << "\nRotamer number " << to_string(rotamerNumber) << " " << molecule.getAtomIndex(rotamer.first) << " " << molecule.getAtomIndex(rotamer.second);
+			#endif DEBUG
             rotamerNumber++;
         }
 
         //cycle for each rotamer of the molecule
         for (std::pair<Atom, Atom> rotamer : rotamers)
         {
+        	#ifdef DEBUG 
             std::cout << "\n\nI Consider the rotamer " << rotamer.first.to_string() << rotamer.second.to_string();
+			#endif
             
             float bestLocalScore = 0;
             Molecule bestLocalMolecule(molecule.getName());

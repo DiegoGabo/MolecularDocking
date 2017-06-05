@@ -106,7 +106,7 @@ void Molecule::centre(){
  @param xcm, ycm, zcm the coordinates of the mass center
  @return the translation matrix
  */
-matrix<float> Molecule:: createTranslationMatrix(float xcm, float ycm, float zcm)
+matrix<float> createTranslationMatrix(float xcm, float ycm, float zcm)
 {
 	matrix<float>  translationMatrix(4, 4);
 
