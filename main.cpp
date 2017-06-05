@@ -8,6 +8,9 @@
 #include "structures_molecule.hpp"
 #include "structures_pocket.hpp"
 #include "parser.hpp"
+#include <time.h>
+
+
 #define DEBUG
 #undef DEBUG
 
@@ -165,7 +168,11 @@ float rotateMolecule(const Molecule & molecule, Molecule & moleculeRotated, int 
 
 int main(int argc, char *argv[])
 {
-    
+    //for calculating execution time 
+	clock_t start,end;
+	double executionTime;
+	start=clock();
+	
     string file_name = "NULL";
     int n = 0;
     
@@ -194,9 +201,13 @@ int main(int argc, char *argv[])
     //create the pocket
     Pocket pocket(5, 5, 0.2);
     pocket.transformation();
-
+    
+    float numberOfProcessedAtoms=0;
+    float throughput;
+    
     for (Molecule molecule : molecules)
     {
+    	numberOfProcessedAtoms+= molecule.getAtoms().size();
         //get all the rotamers of the molecule
     	molecule.centre();
         std::vector<std::pair<Atom, Atom>> rotamers = molecule.getRotamers();
@@ -255,4 +266,10 @@ int main(int argc, char *argv[])
         cout << "\n\nThe best score is: " << std::to_string(bestScore);
         cout << "\n\nBest molecule:\n " << bestMolecule.to_string() << std::endl;
     }
+    //calculate the execution time from start to end and then the number of atoms processed per second
+    end=clock();
+    executionTime=((double)(end-start))/CLOCKS_PER_SEC;
+    cout << "\n\nExecution time : "<< tempo;
+    throughput= numberOfProcessedAtoms/executionTime;
+    cout << "\n\nThroughput : "<< throughput;
 }
