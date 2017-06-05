@@ -180,8 +180,8 @@ int main(int argc, char *argv[])
     
     desc.add_options()
         ("help, h", "Shows description of the options")
-        ("file_name, f", po::value<string>(&file_name)->default_value("NULL"), "Set file name")
-        ("number, n", po::value<int>(&n)->default_value(0), "Set the number of the elements to be read");
+        ("file_name, f", po::value<string>(&file_name)->default_value("ace_ligands.mol2"), "Set file name")
+        ("number, n", po::value<int>(&n)->default_value(1), "Set the number of the elements to be read");
     
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -209,12 +209,14 @@ int main(int argc, char *argv[])
     {
     	numberOfProcessedAtoms+= molecule.getAtoms().size();
         //get all the rotamers of the molecule
+	cout <<"\n\nPRIMA" << molecule.to_string();
     	molecule.centre();
+	cout <<"\n\nDOPO" << molecule.to_string();
         std::vector<std::pair<Atom, Atom>> rotamers = molecule.getRotamers();
         int rotamerNumber = 1;
 		#ifdef DEBUG
         std::cout << "\n\nList of rotamers";
-		#ifdef DEBUG
+		#endif DEBUG
         for (std::pair<Atom, Atom> rotamer : rotamers)
         {	
 			#ifdef DEBUG
@@ -269,7 +271,7 @@ int main(int argc, char *argv[])
     //calculate the execution time from start to end and then the number of atoms processed per second
     end=clock();
     executionTime=((double)(end-start))/CLOCKS_PER_SEC;
-    cout << "\n\nExecution time : "<< tempo;
+    cout << "\n\nExecution time : "<< executionTime;
     throughput= numberOfProcessedAtoms/executionTime;
     cout << "\n\nThroughput : "<< throughput;
 }

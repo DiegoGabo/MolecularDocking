@@ -1,13 +1,41 @@
-#include "structures_molecule.hpp"
 #include <string>
 #include <vector>
 #include <list>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
+#include "structures_molecule.hpp"
 
 using namespace std;
 using namespace boost::numeric::ublas;
 
+/*
+ Creates the translation matrix of the molecule in its mass center
+ @param xcm, ycm, zcm the coordinates of the mass center
+ @return the translation matrix
+ */
+matrix<float> createTranslationMatrix(float xcm, float ycm, float zcm)
+{
+	matrix<float>  translationMatrix(4, 4);
+
+	translationMatrix(0,0) = 1.0;
+	translationMatrix(0,1) = 0.0;
+	translationMatrix(0,2) = 0.0;
+	translationMatrix(0,3) = -xcm;
+	translationMatrix(1,0) = 0.0;
+	translationMatrix(1,1) = 1.0;
+	translationMatrix(1,2) = 0.0;
+	translationMatrix(1,3) = -ycm;
+	translationMatrix(2,0) = 0.0;
+	translationMatrix(2,1) = 0.0;
+	translationMatrix(2,2) = 1.0;
+	translationMatrix(2,3) = -zcm;
+	translationMatrix(3,0) = 0.0;
+	translationMatrix(3,1) = 0.0;
+	translationMatrix(3,2) = 0.0;
+	translationMatrix(3,3) = 1.0;
+	
+	return translationMatrix;
+}
 
 /*
 Implementations of class Atom functions
@@ -80,7 +108,7 @@ void Molecule::centre(){
 	float y_cm=0;
 	float z_cm=0;
 	
-	for(Atom atom: molecule.getAtoms()){
+	for(Atom atom: this->getAtoms()){
 		
 		x_cm += atom.getX();
 		y_cm += atom.getY();
@@ -88,47 +116,21 @@ void Molecule::centre(){
 		
 	}
 	
-	x_cm= x_cm/molecule.getAtoms().size();
-	y_cm= y_cm/molecule.getAtoms().size();
-	z_cm= z_cm/molecule.getAtoms().size();
+	x_cm= x_cm/getAtoms().size();
+	y_cm= y_cm/getAtoms().size();
+	z_cm= z_cm/getAtoms().size();
 	
+	cout << x_cm;
+
 	matrix<float> translationMatrix= createTranslationMatrix(x_cm, y_cm, z_cm);
 	
-	for(Atom atom: molecule.getAtoms()){
+	for(int i = 0; i<atoms.size(); i++){
 		
-		atom.transform(translationMatrix);
+		atoms.at(i).transform(translationMatrix);
 	}
 
 }
 
-/*
- Creates the translation matrix of the molecule in its mass center
- @param xcm, ycm, zcm the coordinates of the mass center
- @return the translation matrix
- */
-matrix<float> createTranslationMatrix(float xcm, float ycm, float zcm)
-{
-	matrix<float>  translationMatrix(4, 4);
-
-	translationMatrix(0,0) = 1.0;
-	translationMatrix(0,1) = 0.0;
-	translationMatrix(0,2) = 0.0;
-	translationMatrix(0,3) = -xcm;
-	translationMatrix(1,0) = 0.0;
-	translationMatrix(1,1) = 1.0;
-	translationMatrix(1,2) = 0.0;
-	translationMatrix(1,3) = -ycm;
-	translationMatrix(2,0) = 0.0;
-	translationMatrix(2,1) = 0.0;
-	translationMatrix(2,2) = 1.0;
-	translationMatrix(2,3) = -zcm;
-	translationMatrix(3,0) = 0.0;
-	translationMatrix(3,1) = 0.0;
-	translationMatrix(3,2) = 0.0;
-	translationMatrix(3,3) = 1.0;
-
-	return translationMatrix;
-}
 
 /*
 Implementations of class Molecule functions

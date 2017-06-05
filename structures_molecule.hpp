@@ -7,6 +7,7 @@
 #include <boost/numeric/ublas/matrix.hpp>
 
 
+
 class Atom
 {
 private:
@@ -78,14 +79,7 @@ public:
     /*
      Centres the molecule in its mass center
      */
-    void centre(){
-    
-    /*
-     Creates the translation matrix of the molecule in its mass center
-     @param xcm, ycm, zcm the coordinates of the mass center
-     @return the translation matrix
-     */
-    matrix<float> createTranslationMatrix(float xcm, float ycm, float zcm);
+    void centre();
     
     /*
      it adds an atom to the molecule
@@ -148,5 +142,11 @@ public:
     std::string to_string();
 };
 
-
+/*
+     Creates the translation matrix of the molecule in its mass center
+     @param xcm, ycm, zcm the coordinates of the mass center
+     @return the translation matrix
+     */
+boost::numeric::ublas::matrix<float> createTranslationMatrix(float xcm, float ycm, float zcm);
 #endif
+
