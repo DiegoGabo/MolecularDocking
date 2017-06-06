@@ -18,7 +18,7 @@ using namespace std;
 using namespace boost::numeric::ublas;
 namespace po = boost::program_options;
 
-
+//prova opencl
 /*
 @param angle the angle that specify the rotation
 @param first the first point that identify the ax of the rotation
