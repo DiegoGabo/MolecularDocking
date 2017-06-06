@@ -119,8 +119,6 @@ void Molecule::centre(){
 	x_cm= x_cm/getAtoms().size();
 	y_cm= y_cm/getAtoms().size();
 	z_cm= z_cm/getAtoms().size();
-	
-	cout << x_cm;
 
 	matrix<float> translationMatrix= createTranslationMatrix(x_cm, y_cm, z_cm);
 	

@@ -140,13 +140,13 @@ float rotateMolecule(const Molecule & molecule, Molecule & moleculeRotated, int 
 	cout << "\n\nI want to rotate the following points of " << std::to_string(angle) << " degree:\t";
 	for (int point : pointsToRotate)
 		cout << std::to_string(point) << " ";
-    #endif DEBUG
+    #endif 
 	
 	matrix<float> rotationMatrix = createRotationMatrix(angle, rotamer.first, rotamer.second);
 	
     #ifdef DEBUG
 	cout << "\n\nThis is the rotation matrix:\n" << rotationMatrix << std::endl;
-    #endif DEBUG
+    #endif 
 	
 	//the for loop applies the rotation to all points in pointsToRotate
 	for (int point : pointsToRotate)
@@ -154,13 +154,13 @@ float rotateMolecule(const Molecule & molecule, Molecule & moleculeRotated, int 
 	
 	#ifdef DEBUG
 	cout << "\nAfter rotation:\n" << moleculeRotated.to_string();
-	#endif DEBUG
+	#endif 
 	
 	float score = calcolateScore(moleculeRotated, pocket);
 	
 	#ifdef DEBUG
 	cout << "\nScore" << std::to_string(score);
-	#endif DEBUG
+	#endif 
 	
 	return score;
 }
@@ -168,11 +168,6 @@ float rotateMolecule(const Molecule & molecule, Molecule & moleculeRotated, int 
 
 int main(int argc, char *argv[])
 {
-    //for calculating execution time 
-	clock_t start,end;
-	double executionTime;
-	start=clock();
-	
     string file_name = "NULL";
     int n = 0;
     
@@ -205,23 +200,27 @@ int main(int argc, char *argv[])
     float numberOfProcessedAtoms=0;
     float throughput;
     
+    //for calculating execution time 
+    clock_t start,end;
+    double executionTime;
+    start=clock();
+	
     for (Molecule molecule : molecules)
     {
     	numberOfProcessedAtoms+= molecule.getAtoms().size();
-        //get all the rotamers of the molecule
-	cout <<"\n\nPRIMA" << molecule.to_string();
     	molecule.centre();
-	cout <<"\n\nDOPO" << molecule.to_string();
+
+	//get all rotamers of the molecule
         std::vector<std::pair<Atom, Atom>> rotamers = molecule.getRotamers();
         int rotamerNumber = 1;
 		#ifdef DEBUG
         std::cout << "\n\nList of rotamers";
-		#endif DEBUG
+		#endif 
         for (std::pair<Atom, Atom> rotamer : rotamers)
         {	
 			#ifdef DEBUG
             cout << "\nRotamer number " << to_string(rotamerNumber) << " " << molecule.getAtomIndex(rotamer.first) << " " << molecule.getAtomIndex(rotamer.second);
-			#endif DEBUG
+			#endif 
             rotamerNumber++;
         }
 
@@ -263,15 +262,15 @@ int main(int argc, char *argv[])
                 bestMolecule = copyMolecule(bestLocalMolecule);
                 bestScore = bestLocalScore;			
             }
-        }
-            
-        cout << "\n\nThe best score is: " << std::to_string(bestScore);
-        cout << "\n\nBest molecule:\n " << bestMolecule.to_string() << std::endl;
+        } 
     }
     //calculate the execution time from start to end and then the number of atoms processed per second
     end=clock();
     executionTime=((double)(end-start))/CLOCKS_PER_SEC;
+    cout << "\n\nThe best score is: " << std::to_string(bestScore);
+    cout << "\n\nBest molecule:\n " << bestMolecule.to_string() << std::endl;
     cout << "\n\nExecution time : "<< executionTime;
+    cout << "\n\nAtom processed : " << numberOfProcessedAtoms;
     throughput= numberOfProcessedAtoms/executionTime;
-    cout << "\n\nThroughput : "<< throughput;
+    cout << "\n\nThroughput : "<< throughput << "\n";
 }
