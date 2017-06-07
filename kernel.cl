@@ -1,6 +1,40 @@
 #define MAX_SIZE 20
 #include "structures_molecule.hpp"
 
+inline void addAtom(Molecule* molecule, Atom atom)
+{
+	int index = molecule->numberOfAtoms;
+	molecule->atoms[index]=atom;
+	molecule->links[index].numberOfLinks=0;
+	molecule->numberOfAtoms += 1;
+}
+
+
+inline void setEdge(Molecule * molecule, int src, int dest)
+{
+	int index = molecule->links[src].numberOfLinks;
+	molecule->links[src].atoms[index]=dest;
+	molecule->links[src].numberOfLinks+=1;
+	
+	index = molecule->links[dest].numberOfLinks;
+	molecule->links[dest].atoms[index]=src;
+	molecule->links[dest].numberOfLinks+=1;
+}
+
+inline void printMolecule(Molecule* molecule)
+{
+	int i, j;
+	for(i = 0; i<molecule->numberOfAtoms; i++)
+		printf("\nAtom number %d: x = %f, y = %f, z = %f", i, molecule->atoms[i].x, molecule->atoms[i].y, molecule->atoms[i].z);
+
+	for(i=0; i<molecule->numberOfAtoms; i++)
+	{
+		printf("\nAtom number %d linked to:  ", i);
+		for(j=0; j<molecule->links[i].numberOfLinks; j++)
+			printf("%d ", molecule->links[i].atoms[j]);
+	}
+}
+
 inline void createRotationMatrix(Molecule molecule, int angle, Rotamer rotamer, float (*rotationMatrix)[4])
 {
 	
@@ -34,36 +68,77 @@ inline void createRotationMatrix(Molecule molecule, int angle, Rotamer rotamer, 
 	rotationMatrix[3][3] = 1.0;
 }
 
-kernel void vecadd(global Molecule * molecules) {
-    const int idx = get_global_id(0);
-	int i, j;
-	for(i = 0; i<molecules[idx].numberOfAtoms; i++)
+inline void copyMolecule(Molecule* molecule, Molecule* moleculeCopied)
+{
+	int i,j;
+	moleculeCopied->numberOfAtoms=0;
+	for (i=0; i<molecule->numberOfAtoms; i++)
 	{
-		printf("\nAtom number %d: x = %f, y = %f, z = %f", i, molecules[idx].atoms[i].x, molecules[idx].atoms[i].y, molecules[idx].atoms[i].z);
-	}
-
-	for(i=0; i<molecules[idx].numberOfAtoms; i++)
-	{
-		printf("\nAtom number %d linked to:  ", i);
-		for(j=0; j<molecules[idx].links[i].numberOfLinks; j++)
+		addAtom(moleculeCopied, molecule->atoms[i]);
+		for (j=0; j < molecule->links[i].numberOfLinks; j++)
 		{
-			printf("%d ", molecules[idx].links[i].atoms[j]);
+			if(i > molecule->links[i].atoms[j])
+				setEdge(moleculeCopied, i, molecule->links[i].atoms[j]);
 		}
-	}
-	Rotamer r1;
-	r1.first=1; r1.second=2;
-	float rotationMatrix[4][4];
-	createRotationMatrix(molecules[idx], 30, r1, &rotationMatrix);
-	
-	printf("\n\nRotation matrix\n");
-	for (i=0; i<4; i++)
-	{
-		for (j=0; j<4; j++)
-		{
-			printf("%f  ", rotationMatrix[i][j]);
-		}
-		printf("\n");
 	}
 }
 
+inline void trasform(Atom* atom, float (*matrix)[4])
+{
+	float x, y, z;
+	x = atom->x;
+	y = atom->y;
+	z = atom->z;
+	atom->x = matrix[0][0]*x + matrix[0][1]*y + matrix[0][2]*z;
+	atom->y = matrix[1][0]*x + matrix[1][1]*y + matrix[1][2]*z;
+	atom->z = matrix[2][0]*x + matrix[2][1]*y + matrix[2][2]*z;
+}
 
+inline float rotateMolecule(Molecule* molecule, Molecule* moleculeRotated, int angle, Rotamer rotamer, float (*rotationMatrix)[4])
+{
+	copyMolecule(molecule, moleculeRotated);
+	int i; 
+	for(i=0; i<moleculeRotated->numberOfAtoms; i++)
+	{
+		trasform(&(moleculeRotated->atoms[i]), rotationMatrix);
+	}
+	printMolecule(moleculeRotated);
+	return 0.5;
+}
+
+kernel void vecadd(global Molecule * molecules) {
+    const int idx = get_global_id(0);
+	Molecule molecule = molecules[idx];
+	int i, j;
+	printMolecule(&molecule);
+	
+	Rotamer listOfRotamer[MAX_SIZE];
+	int numberOfRotamer=1;
+	Rotamer r1;
+	r1.first=1; r1.second=2;
+	listOfRotamer[0]=r1;
+
+	for (i=0; i<numberOfRotamer; i++)
+	{
+		Rotamer currentRotamer = listOfRotamer[0];
+		Atom pointsToRotate[MAX_SIZE];
+		
+		int angle;
+		for (angle=0; angle<360; angle+=60)
+		{
+			float rotationMatrix[4][4];
+			createRotationMatrix(molecule, angle, r1, &rotationMatrix);
+			printf("\n\nRotation matrix for a %d degree rotation\n", angle);
+			for (i=0; i<4; i++)
+			{
+				for (j=0; j<4; j++)
+				{
+					printf("%f  ", rotationMatrix[i][j]);
+				}
+				printf("\n");
+			}
+			Molecule moleculeRotated;
+			float score = rotateMolecule(&molecule, &moleculeRotated, angle, currentRotamer, &rotationMatrix);
+		}
+	}
+}
