@@ -93,7 +93,7 @@ int main( int argc, char** argv ) {
 	program.build(devices);
 
 	// Make kernel
-	cl::Kernel vecadd_kernel(program, "vecadd");
+	cl::Kernel vecadd_kernel(program, "doAllRotation");
 
 	// Set the kernel arguments
 	vecadd_kernel.setArg( 0, bufferA );

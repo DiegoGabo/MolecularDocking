@@ -94,19 +94,59 @@ inline void trasform(Atom* atom, float (*matrix)[4])
 	atom->z = matrix[2][0]*x + matrix[2][1]*y + matrix[2][2]*z;
 }
 
-inline float rotateMolecule(Molecule* molecule, Molecule* moleculeRotated, int angle, Rotamer rotamer, float (*rotationMatrix)[4])
+inline float rotateMolecule(Molecule* molecule, Molecule* moleculeRotated, int angle, Rotamer rotamer, float (*rotationMatrix)[4], int *pointsToRotate, int numberOfPointsToRotate)
 {
 	copyMolecule(molecule, moleculeRotated);
 	int i; 
-	for(i=0; i<moleculeRotated->numberOfAtoms; i++)
-	{
-		trasform(&(moleculeRotated->atoms[i]), rotationMatrix);
-	}
+
+	for(i=0; i<numberOfPointsToRotate; i++)
+		trasform(&(moleculeRotated->atoms[pointsToRotate[i]]), rotationMatrix);
+
 	printMolecule(moleculeRotated);
 	return 0.5;
 }
 
-kernel void vecadd(global Molecule * molecules) {
+inline void addSuccessor(Molecule* molecule, int* successors, int atom, int* numberOfSuccessors)
+{
+	int i;
+	for(i=0; i<molecule->links[atom].numberOfLinks; i++)
+	{
+		successors[*numberOfSuccessors] = molecule->links[atom].atoms[i];
+		(*numberOfSuccessors) += 1;
+	}
+}
+
+inline int getRotamerSuccessor(Molecule* molecule, Rotamer rotamer, int* successors)
+{
+	int numberOfSuccessors=0;
+	int numberOfNotConsidered=0;
+	int atomToBeConsidered[MAX_SIZE];
+	addSuccessor(molecule, &atomToBeConsidered, rotamer.second, &numberOfNotConsidered);
+
+	while(numberOfNotConsidered>0)
+	{
+		numberOfNotConsidered -= 1;
+		int nextAtom = atomToBeConsidered[numberOfNotConsidered];
+		int i, alreadyTaken = 0;
+
+		for(i=0; i<numberOfSuccessors; i++)
+			if(nextAtom == successors[i])
+				alreadyTaken = 1;
+
+		if(nextAtom == rotamer.first || nextAtom == rotamer.second)
+			alreadyTaken = 1;
+
+		if(alreadyTaken == 0)
+		{
+			successors[numberOfSuccessors] = nextAtom;
+			numberOfSuccessors += 1;
+			addSuccessor(molecule, &atomToBeConsidered, nextAtom, &numberOfNotConsidered);
+		}
+	}
+	return numberOfSuccessors;
+}
+
+kernel void doAllRotation(global Molecule * molecules) {
     const int idx = get_global_id(0);
 	Molecule molecule = molecules[idx];
 	int i, j;
@@ -121,13 +161,19 @@ kernel void vecadd(global Molecule * molecules) {
 	for (i=0; i<numberOfRotamer; i++)
 	{
 		Rotamer currentRotamer = listOfRotamer[0];
-		Atom pointsToRotate[MAX_SIZE];
+		int rotamerSuccessor[MAX_SIZE];
+		int pointsToTrasform = getRotamerSuccessor(&molecule, currentRotamer, &rotamerSuccessor);
 		
+		printf("\n%d points to trasform:  ", pointsToTrasform);
+		for(j=0; j<pointsToTrasform; j++)
+			printf("%d  ", rotamerSuccessor[j]);
+
 		int angle;
 		for (angle=0; angle<360; angle+=60)
 		{
 			float rotationMatrix[4][4];
 			createRotationMatrix(molecule, angle, r1, &rotationMatrix);
+
 			printf("\n\nRotation matrix for a %d degree rotation\n", angle);
 			for (i=0; i<4; i++)
 			{
@@ -137,8 +183,9 @@ kernel void vecadd(global Molecule * molecules) {
 				}
 				printf("\n");
 			}
+
 			Molecule moleculeRotated;
-			float score = rotateMolecule(&molecule, &moleculeRotated, angle, currentRotamer, &rotationMatrix);
+			float score = rotateMolecule(&molecule, &moleculeRotated, angle, currentRotamer, &rotationMatrix, &rotamerSuccessor, pointsToTrasform);
 		}
 	}
 }
