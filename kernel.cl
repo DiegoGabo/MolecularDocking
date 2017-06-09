@@ -146,21 +146,86 @@ inline int getRotamerSuccessor(Molecule* molecule, Rotamer rotamer, int* success
 	return numberOfSuccessors;
 }
 
+inline int isInCycle(Molecule* molecule, int first, int second)
+{
+
+	int numberOfSuccessors=0, numberOfNotConsidered=0, i;
+	int successors[MAX_SIZE];
+	int atomToBeConsidered[MAX_SIZE];
+	addSuccessor(molecule, &atomToBeConsidered, second, &numberOfNotConsidered);
+
+	for(i=0; i<numberOfNotConsidered; i++)
+		if(atomToBeConsidered[i]==first)
+			atomToBeConsidered[i]=-1;
+
+	while(numberOfNotConsidered>0)
+	{
+		numberOfNotConsidered -= 1;
+		int nextAtom = atomToBeConsidered[numberOfNotConsidered];
+		int alreadyTaken = 0;
+	
+		if(nextAtom == first)
+			return 1;
+
+		for(i=0; i<numberOfSuccessors; i++)
+			if(nextAtom == successors[i])
+				alreadyTaken = 1;
+
+		if(nextAtom == -1 || nextAtom == second)
+			alreadyTaken = 1;
+	
+		if(alreadyTaken == 0)
+		{
+			successors[numberOfSuccessors] = nextAtom;
+			numberOfSuccessors += 1;
+			addSuccessor(molecule, &atomToBeConsidered, nextAtom, &numberOfNotConsidered);
+		}
+	}
+	return 0;
+}
+
+inline int getRotaimer(Molecule* molecule, Rotamer* listOfRotamer)
+{
+	int i, j, numberOfRotamer=0;
+	int first, second;
+	for(i=0; i<molecule->numberOfAtoms; i++)
+	{
+		for(j=0; j<molecule->links[i].numberOfLinks; j++)
+		{
+
+			first = i;
+			second = molecule->links[i].atoms[j];
+			if(first < second && molecule->links[first].numberOfLinks>1 && molecule->links[second].numberOfLinks>1 && isInCycle(molecule, first, second)==0)
+			{	
+				Rotamer rotamer;
+				rotamer.first = first;
+				rotamer.second = second;
+				listOfRotamer[numberOfRotamer] = rotamer;
+				numberOfRotamer += 1;
+			}
+		}
+	}
+	return numberOfRotamer;
+}
+
 kernel void doAllRotation(global Molecule * molecules) {
     const int idx = get_global_id(0);
 	Molecule molecule = molecules[idx];
-	int i, j;
+	int i, j, k;
 	printMolecule(&molecule);
 	
 	Rotamer listOfRotamer[MAX_SIZE];
-	int numberOfRotamer=1;
-	Rotamer r1;
-	r1.first=1; r1.second=2;
-	listOfRotamer[0]=r1;
-
-	for (i=0; i<numberOfRotamer; i++)
+	int numberOfRotamer = getRotaimer(&molecule, &listOfRotamer);
+	
+	printf("\nList of rotamers");
+	for(i=0; i<numberOfRotamer; i++)
 	{
-		Rotamer currentRotamer = listOfRotamer[0];
+		printf("\nRotamer %d: %d %d", i, listOfRotamer[i].first, listOfRotamer[i].second);
+	}
+	
+	for (k=0; k<numberOfRotamer; k++)
+	{
+		Rotamer currentRotamer = listOfRotamer[k];
 		int rotamerSuccessor[MAX_SIZE];
 		int pointsToTrasform = getRotamerSuccessor(&molecule, currentRotamer, &rotamerSuccessor);
 		
@@ -172,7 +237,7 @@ kernel void doAllRotation(global Molecule * molecules) {
 		for (angle=0; angle<360; angle+=60)
 		{
 			float rotationMatrix[4][4];
-			createRotationMatrix(molecule, angle, r1, &rotationMatrix);
+			createRotationMatrix(molecule, angle, currentRotamer, &rotationMatrix);
 
 			printf("\n\nRotation matrix for a %d degree rotation\n", angle);
 			for (i=0; i<4; i++)
