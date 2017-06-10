@@ -26,7 +26,7 @@ typedef struct
 	int second;
 }Rotamer;
 
-//void addAtom(Molecule* molecule, const Atom atom);
-void ciao();
+void addAtom(Molecule* molecule, const Atom atom);
+void setEdge(Molecule* molecule, int src, int dest);
 #endif
 
