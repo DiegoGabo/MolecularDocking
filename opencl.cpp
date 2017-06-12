@@ -4,52 +4,88 @@
 #include <fstream>
 #include <string>
 #include <memory>
+#include "parseFile.hpp"
 
+using namespace std;
+namespace po = boost::program_options;
 
 int main( int argc, char** argv ) {
 
     const int N_ELEMENTS=1;
     unsigned int platform_id=0, device_id=0;
 
-	Atom a1, a2, a3, a4, a5, a6, a7, a8;
-	a1.x=0.0;  a1.y=1.0;  a1.z=0.0;
-	a2.x=0.0;  a2.y=-1.0; a2.z=0.0;
-	a3.x=1.0;  a3.y=0.0;  a3.z=0.0;
-	a4.x=2.0;  a4.y=0.0;  a4.z=0.0;
-	a5.x=3.0;  a5.y=1.0;  a5.z=0.0;
-	a6.x=4.0;  a6.y=-1.0; a6.z=0.0;
-	a7.x=4.0;  a7.y=0.0;  a7.z=0.0;
-	a8.x=-1.0; a8.y=-1.0;  a8.z=0.0;
-	
-	Molecule m1;
-	m1.numberOfAtoms=0;
-	addAtom(&m1, a1);
-	addAtom(&m1, a2);
-	addAtom(&m1, a3);
-	addAtom(&m1, a4);
-	addAtom(&m1, a5);
-	addAtom(&m1, a6);
-	addAtom(&m1, a7);
-	addAtom(&m1, a8);
+//	Atom a1, a2, a3, a4, a5, a6, a7, a8;
+//	a1.x=0.0;  a1.y=1.0;  a1.z=0.0;
+//	a2.x=0.0;  a2.y=-1.0; a2.z=0.0;
+//	a3.x=1.0;  a3.y=0.0;  a3.z=0.0;
+//	a4.x=2.0;  a4.y=0.0;  a4.z=0.0;
+//	a5.x=3.0;  a5.y=1.0;  a5.z=0.0;
+//	a6.x=4.0;  a6.y=-1.0; a6.z=0.0;
+//	a7.x=4.0;  a7.y=0.0;  a7.z=0.0;
+//	a8.x=-1.0; a8.y=-1.0;  a8.z=0.0;
+//	
+//	Molecule m1;
+//	m1.numberOfAtoms=0;
+//	addAtom(&m1, a1);
+//	addAtom(&m1, a2);
+//	addAtom(&m1, a3);
+//	addAtom(&m1, a4);
+//	addAtom(&m1, a5);
+//	addAtom(&m1, a6);
+//	addAtom(&m1, a7);
+//	addAtom(&m1, a8);
+//
+//	setEdge(&m1, 0, 2);
+//	setEdge(&m1, 1, 2);
+//	setEdge(&m1, 1, 7);
+//	setEdge(&m1, 2, 3);
+//	setEdge(&m1, 3, 4);
+//	setEdge(&m1, 3, 5);
+//	setEdge(&m1, 4, 6);
+//	setEdge(&m1, 5, 6);
 
-	setEdge(&m1, 0, 2);
-	setEdge(&m1, 1, 2);
-	setEdge(&m1, 1, 7);
-	setEdge(&m1, 2, 3);
-	setEdge(&m1, 3, 4);
-	setEdge(&m1, 3, 5);
-	setEdge(&m1, 4, 6);
-	setEdge(&m1, 5, 6);
+    //aggiungere device GPU o CPU, togliere membro OR
+    
+    string file_name = "NULL";
+    int n = 0;
+    string device = "NULL"
+    
+    po::options_description desc;
+    
+    desc.add_options()
+    ("help, h", "Shows description of the options")
+    ("file_name, f", po::value<string>(&file_name)->default_value("ace_ligands.mol2"), "Set file name")
+    ("number, n", po::value<int>(&n)->default_value(1), "Set the number of the elements to be read")
+    ("device, d", po::value<string>(&device), "Set the type of device is used");
+    
+    po::variables_map vm;
+    po::store(po::parse_command_line(argc, argv, desc), vm);
+    po::notify(vm);
+    
+    if(vm.count("help"))
+        return 0;
 
-	//std::unique_ptr<Molecule[]> A(new Molecule[N_ELEMENTS]); 
+    if(!vm.count("device")
+    {
+        cout << "Device not setted\n";
+        return 0;
+    }
+    
+    
+    
+	//std::unique_ptr<Molecule[]> A(new Molecule[N_ELEMENTS]);
 	Molecule* A = new Molecule[N_ELEMENTS];
-	A[0] = m1;
+//  A[0] = m1;
+    
+    A = parseFile(file_name, n);
 
 	// Query for platforms
 	std::vector<cl::Platform> platforms;
 	cl::Platform::get(&platforms);
 	// Get a list of devices on this platform
 	std::vector<cl::Device> devices;
+    
+    if(device.tocompare("))
 	platforms[platform_id].getDevices(CL_DEVICE_TYPE_GPU|CL_DEVICE_TYPE_CPU, &devices); // Select the platform.
 
 	// Create a context

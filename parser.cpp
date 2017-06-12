@@ -2,6 +2,7 @@
 
 #include "parser.hpp"
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <vector>
 #include <list>
@@ -13,6 +14,7 @@ const string MOLECULE_BEGIN ("@<TRIPOS>MOLECULE");
 const string MOLECULE_ATOMS ("@<TRIPOS>ATOM");
 const string MOLECULE_BONDS ("@<TRIPOS>BOND");
 const string MOLECULE_NULL ("EMPTY MOLECULE");
+const
 
 /*
  This method takes a string and returns a vector containing each word that composes the string
@@ -51,12 +53,29 @@ This method takes a file as parameter and returns a vectors containing the molec
  @param a file to be parsed
  @return a vector containing molecules
  */
-vector<Molecule> parseFile(string name, int l)
+Molecule* parseFile(string name, int l)
 {
-    vector<Molecule> molecules;
+    int limit = 0;
+    int dimension = 0;
     
-    if(l == 0)
-        return molecules;
+    //if limit is zero the parser will read all the ligands
+    if (l < 0)
+    {
+        limit = l;
+        dimension = -l;
+    }
+    else if( l == 0)
+    {
+        limit = 1;
+        dimension = 50;
+    }
+    else
+    {
+        limit = -l;
+        dimension = l;
+    }
+    
+    Molecule* molecules = new Molecule[dimension];
     
     fstream ligands(name);
     
@@ -64,22 +83,12 @@ vector<Molecule> parseFile(string name, int l)
     {
         string line;
         vector<string> text_elements;
-
-        int limit = 0;
-        
-        //if limit is zero the parser will read all the ligands
-        if (l < 0)
-            limit = l;
-        else if( l == 0)
-            limit = 1;
-        else
-            limit = -l;
-        
-        Molecule* temp_molecule = new Molecule(MOLECULE_NULL);
         
         bool name_flag = false;
         bool atoms_flag = false;
         bool bonds_flag = false;
+        
+        int mol_index = -1;
         
         while (getline(ligands, line) and limit)
         {
@@ -96,13 +105,9 @@ vector<Molecule> parseFile(string name, int l)
                 name_flag = true;
                 atoms_flag = false;
                 bonds_flag = false;
-                
-                if (temp_molecule->getName().compare(MOLECULE_NULL) != 0)
-                {
-                    molecules.push_back(*temp_molecule);
-                    temp_molecule = new Molecule(MOLECULE_NULL);
-                    limit++;
-                }
+
+                mol_index++;
+
             }
             else if (text_elements[0].compare(MOLECULE_ATOMS) == 0)
             {
@@ -124,7 +129,7 @@ vector<Molecule> parseFile(string name, int l)
                     continue;   //we are skipping the part between "@<TRIPOS> MOLECULE" and "@<TRIPOS> ATOM"
                 else if (name_flag && !atoms_flag && !bonds_flag)
                 {
-                    temp_molecule->setName(text_elements[0]);
+                    molecules[mol_index].name = text_elements[0];
                     name_flag = false;
                 }
                 else if (!name_flag && atoms_flag && !bonds_flag)
@@ -133,14 +138,14 @@ vector<Molecule> parseFile(string name, int l)
                     float y = stof(text_elements[3]);
                     float z = stof(text_elements[4]);
                     
-                    temp_molecule->addAtom(Atom (x, y, z));
+                    addAtom(&molecules[mol_index], x, y, z);
                 }
                 else if (!name_flag && !atoms_flag && bonds_flag)
                 {
                     int source = stoi(text_elements[1]) -1 ;
                     int destination = stoi(text_elements[2]) - 1;
                     
-                    temp_molecule->setEdge(source, destination);
+                    setEdge(&molecules[mol_index], source, destination);
                 }
             }
         }
@@ -150,5 +155,5 @@ vector<Molecule> parseFile(string name, int l)
     else
         cout << "Unable to open the file\n";
     
-    return molecules;
+    return &molecules;
 }
