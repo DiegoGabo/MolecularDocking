@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <boost/program_options.hpp>
+#include <boost/algorithm/string.hpp>
 #include "parser.hpp"
 #include <math.h>
 #define SIZE_POCKET 6 
@@ -12,6 +13,7 @@ const float PI = 3.14159265;
 
 using namespace std;
 namespace po = boost::program_options;
+using namespace boost::algorithm;
 
 void createPocket(Atom* pocket,float distance){
 	
@@ -29,8 +31,8 @@ void createPocket(Atom* pocket,float distance){
 	for(int i=0;i<SIZE_POCKET;i++){
 		for(int j=0;j<SIZE_POCKET;j++){
 		
-			vertex2D[i*SIZE_POCKET+j]->latitude=i;
-			vertex2D[i*SIZE_POCKET+j]->longitude=j;
+			vertex2D[i*SIZE_POCKET+j].latitude=i;
+			vertex2D[i*SIZE_POCKET+j].longitude=j;
 			
 		}
 	}
@@ -62,9 +64,9 @@ int main( int argc, char** argv ) {
     const int N_ELEMENTS=1;
     unsigned int platform_id=0, device_id=0;
 
-	Atoms pocket[36];
+	Atom pocket[36];
 
-    createPocket(&pocket,0.2);
+    createPocket(pocket,0.2);
     
 //	Atom a1, a2, a3, a4, a5, a6, a7, a8;
 //	a1.x=0.0;  a1.y=1.0;  a1.z=0.0;
@@ -108,7 +110,7 @@ int main( int argc, char** argv ) {
     ("help, h", "Shows description of the options")
     ("file_name, f", po::value<string>(&file_name)->default_value("ace_ligands.mol2"), "Set file name")
     ("number, n", po::value<int>(&n)->default_value(1), "Set the number of the elements to be read")
-    ("device, d", po::value<string>(&device)->default_value("cpu"), "Set the type of device is used");
+    ("device, d", po::value<string>(&device)->default_value("cpu"), "Set the type of device you want use. Available option: <gpu> or <cpu>");
     
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -124,7 +126,6 @@ int main( int argc, char** argv ) {
     }
     
     
-    
 	//std::unique_ptr<Molecule[]> A(new Molecule[N_ELEMENTS]);
 	Molecule* A = new Molecule[N_ELEMENTS];
 //  A[0] = m1;
@@ -137,8 +138,17 @@ int main( int argc, char** argv ) {
 	// Get a list of devices on this platform
 	std::vector<cl::Device> devices;
     
-    //if(device.compare(""))
-	platforms[platform_id].getDevices(CL_DEVICE_TYPE_GPU|CL_DEVICE_TYPE_CPU, &devices); // Select the platform.
+    // Select the platform.
+    to_lower(device);
+    if(device.compare("gpu") == 0)
+        platforms[platform_id].getDevices(CL_DEVICE_TYPE_GPU, &devices);
+    else if(device.compare("cpu") == 0)
+        platforms[platform_id].getDevices(CL_DEVICE_TYPE_CPU, &devices);
+    else
+    {
+        cout << "Unable to select the platform";
+        return 0;
+    }
 
 	// Create a context
 	cl::Context context(devices);
