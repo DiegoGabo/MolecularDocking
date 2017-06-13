@@ -287,7 +287,7 @@ inline void centre(Molecule* molecule){
 
 }
 
-kernel void doAllRotation(global Molecule * molecules) {/*
+kernel void doAllRotation(global Molecule * molecules) {
     const int idx = get_global_id(0);
 	Molecule molecule = molecules[idx];
 	int i, j, k;
@@ -384,5 +384,5 @@ kernel void doAllRotation(global Molecule * molecules) {/*
 		}
 	}
 	printf("\n\nBest Score: %f", bestScore);
-	printMolecule(&bestMolecule);*/
+	printMolecule(&bestMolecule);
 }

@@ -37,10 +37,10 @@ void createPocket(Atom* pocket,float distance){
 		}
 	}
 	
-	   latAlfa= ((vertex2D[2*latmax]->latitude)*PI)/180;
-	   latBeta= ((vertex2D[2*latmax+1]->latitude)*PI)/180;
-	   lonAlfa= ((vertex2D[2*latmax]->longitude)*PI)/180;
-	   lonBeta= ((vertex2D[2*latmax+1]->longitude)*PI)/180;
+	   latAlfa= ((vertex2D[2*SIZE_POCKET].latitude)*PI)/180;
+	   latBeta= ((vertex2D[2*SIZE_POCKET+1].latitude)*PI)/180;
+	   lonAlfa= ((vertex2D[2*SIZE_POCKET].longitude)*PI)/180;
+	   lonBeta= ((vertex2D[2*SIZE_POCKET+1].longitude)*PI)/180;
 	   phi=fabs(lonAlfa-lonBeta); 
 	   
 	   float radius= distance/(acos(sin(latBeta)*sin(latAlfa)+cos(latBeta)*cos(latAlfa)*cos(phi)));
@@ -50,9 +50,9 @@ void createPocket(Atom* pocket,float distance){
 	   for(int i=0;i<SIZE_POCKET;i++){
 			for(int j=0;j<SIZE_POCKET;j++){
 				
-				pocket->atom[i*SIZE_POCKET+j].x= radius*(sin(PI * vertex2D->latitude / SIZE_POCKET) *cos(2*PI * vertex.getLongitude() / SIZE_POCKET));
-				pocket->atom[i*SIZE_POCKET+j].y= radius*(sin(PI * vertex2D->latitude / SIZE_POCKET) *sin(2*PI * vertex.getLongitude() / SIZE_POCKET));
-				pocket->atom[i*SIZE_POCKET+j].z= radius*(cos(PI * vertex2D->latitude / SIZE_POCKET));
+				pocket[i*SIZE_POCKET+j].x= radius*(sin(PI * vertex2D[i*SIZE_POCKET+j].latitude / SIZE_POCKET) *cos(2*PI * vertex2D[i*SIZE_POCKET+j].longitude / SIZE_POCKET));
+				pocket[i*SIZE_POCKET+j].y= radius*(sin(PI * vertex2D[i*SIZE_POCKET+j].latitude / SIZE_POCKET) *sin(2*PI * vertex2D[i*SIZE_POCKET+j].longitude / SIZE_POCKET));
+				pocket[i*SIZE_POCKET+j].z= radius*(cos(PI * vertex2D[i*SIZE_POCKET+j].latitude / SIZE_POCKET));
 	  
 			}
 		}	  
@@ -64,39 +64,30 @@ int main( int argc, char** argv ) {
     const int N_ELEMENTS=1;
     unsigned int platform_id=0, device_id=0;
 
-	Atom pocket[36];
+	Atom pocket[SIZE_POCKET*SIZE_POCKET];
 
-    createPocket(pocket,0.2);
-    
-//	Atom a1, a2, a3, a4, a5, a6, a7, a8;
-//	a1.x=0.0;  a1.y=1.0;  a1.z=0.0;
-//	a2.x=0.0;  a2.y=-1.0; a2.z=0.0;
-//	a3.x=1.0;  a3.y=0.0;  a3.z=0.0;
-//	a4.x=2.0;  a4.y=0.0;  a4.z=0.0;
-//	a5.x=3.0;  a5.y=1.0;  a5.z=0.0;
-//	a6.x=4.0;  a6.y=-1.0; a6.z=0.0;
-//	a7.x=4.0;  a7.y=0.0;  a7.z=0.0;
-//	a8.x=-1.0; a8.y=-1.0;  a8.z=0.0;
-//	
-//	Molecule m1;
-//	m1.numberOfAtoms=0;
-//	addAtom(&m1, a1);
-//	addAtom(&m1, a2);
-//	addAtom(&m1, a3);
-//	addAtom(&m1, a4);
-//	addAtom(&m1, a5);
-//	addAtom(&m1, a6);
-//	addAtom(&m1, a7);
-//	addAtom(&m1, a8);
-//
-//	setEdge(&m1, 0, 2);
-//	setEdge(&m1, 1, 2);
-//	setEdge(&m1, 1, 7);
-//	setEdge(&m1, 2, 3);
-//	setEdge(&m1, 3, 4);
-//	setEdge(&m1, 3, 5);
-//	setEdge(&m1, 4, 6);
-//	setEdge(&m1, 5, 6);
+    //createPocket(&pocket,0.2);
+
+/*
+	Molecule m1;
+	m1.numberOfAtoms=0;
+	addAtom(&m1, 0.0, 1.0, 0.0);
+	addAtom(&m1, 0.0, -1.0, 0.0);
+	addAtom(&m1, 1.0, 0.0, 0.0);
+	addAtom(&m1, 2.0, 0.0, 0.0);
+	addAtom(&m1, 3.0, 1.0, 0.0);
+	addAtom(&m1, 4.0, -1.0, 0.0);
+	addAtom(&m1, 4.0, 0.0, 0.0);
+	addAtom(&m1, -1.0, -1.0, 0.0);
+
+	setEdge(&m1, 0, 2);
+	setEdge(&m1, 1, 2);
+	setEdge(&m1, 1, 7);
+	setEdge(&m1, 2, 3);
+	setEdge(&m1, 3, 4);
+	setEdge(&m1, 3, 5);
+	setEdge(&m1, 4, 6);
+	setEdge(&m1, 5, 6);*/
 
     //aggiungere device GPU o CPU, togliere membro OR
     
@@ -128,9 +119,11 @@ int main( int argc, char** argv ) {
     
 	//std::unique_ptr<Molecule[]> A(new Molecule[N_ELEMENTS]);
 	Molecule* A = new Molecule[N_ELEMENTS];
-//  A[0] = m1;
+    //A[0] = m1;
     
     A = parseFile(file_name, n);
+
+	cout << std::to_string(A[0].atoms[0].x);
 
 	// Query for platforms
 	std::vector<cl::Platform> platforms;

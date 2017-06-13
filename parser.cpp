@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <cstring>
 #include <vector>
 #include <list>
 #include "structures_molecule.hpp"
@@ -74,7 +75,8 @@ Molecule* parseFile(string name, int l)
         dimension = l;
     }
     
-    Molecule molecules[dimension];
+     Molecule* molecules = new Molecule[100];
+
     
     fstream ligands(name);
     
