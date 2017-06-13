@@ -1,8 +1,10 @@
 #include "structures_molecule.hpp"
-void addAtom(Molecule* molecule, Atom atom)
+void addAtom(Molecule* molecule, float x, float y, float z)
 {
 	int index = molecule->numberOfAtoms;
-	molecule->atoms[index]=atom;
+	molecule->atoms[index].x = x;
+	molecule->atoms[index].y = y;
+	molecule->atoms[index].z = z;
 	molecule->links[index].numberOfLinks=0;
 	molecule->numberOfAtoms += 1;
 }

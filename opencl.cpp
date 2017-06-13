@@ -4,7 +4,8 @@
 #include <fstream>
 #include <string>
 #include <memory>
-#include "parseFile.hpp"
+#include <boost/program_options.hpp>
+#include "parser.hpp"
 
 using namespace std;
 namespace po = boost::program_options;
@@ -48,7 +49,7 @@ int main( int argc, char** argv ) {
     
     string file_name = "NULL";
     int n = 0;
-    string device = "NULL"
+    string device = "NULL";
     
     po::options_description desc;
     
@@ -56,7 +57,7 @@ int main( int argc, char** argv ) {
     ("help, h", "Shows description of the options")
     ("file_name, f", po::value<string>(&file_name)->default_value("ace_ligands.mol2"), "Set file name")
     ("number, n", po::value<int>(&n)->default_value(1), "Set the number of the elements to be read")
-    ("device, d", po::value<string>(&device), "Set the type of device is used");
+    ("device, d", po::value<string>(&device)->default_value("cpu"), "Set the type of device is used");
     
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -65,7 +66,7 @@ int main( int argc, char** argv ) {
     if(vm.count("help"))
         return 0;
 
-    if(!vm.count("device")
+    if(!vm.count("device"))
     {
         cout << "Device not setted\n";
         return 0;
@@ -85,7 +86,7 @@ int main( int argc, char** argv ) {
 	// Get a list of devices on this platform
 	std::vector<cl::Device> devices;
     
-    if(device.tocompare("))
+    //if(device.compare(""))
 	platforms[platform_id].getDevices(CL_DEVICE_TYPE_GPU|CL_DEVICE_TYPE_CPU, &devices); // Select the platform.
 
 	// Create a context

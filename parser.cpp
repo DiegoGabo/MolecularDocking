@@ -1,12 +1,12 @@
 // how to understand mol2 contents -> http://thegrantlab.org/bio3d/html/read.mol2.html
 
-#include "parser.hpp"
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
 #include <list>
 #include "structures_molecule.hpp"
+#include "parser.hpp"
 
 using namespace std;
 
@@ -14,7 +14,6 @@ const string MOLECULE_BEGIN ("@<TRIPOS>MOLECULE");
 const string MOLECULE_ATOMS ("@<TRIPOS>ATOM");
 const string MOLECULE_BONDS ("@<TRIPOS>BOND");
 const string MOLECULE_NULL ("EMPTY MOLECULE");
-const
 
 /*
  This method takes a string and returns a vector containing each word that composes the string
@@ -137,7 +136,6 @@ Molecule* parseFile(string name, int l)
                     float x = stof(text_elements[2]);
                     float y = stof(text_elements[3]);
                     float z = stof(text_elements[4]);
-                    
                     addAtom(&molecules[mol_index], x, y, z);
                 }
                 else if (!name_flag && !atoms_flag && bonds_flag)
@@ -155,5 +153,5 @@ Molecule* parseFile(string name, int l)
     else
         cout << "Unable to open the file\n";
     
-    return &molecules;
+    return molecules;
 }
