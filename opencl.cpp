@@ -6,15 +6,66 @@
 #include <memory>
 #include <boost/program_options.hpp>
 #include "parser.hpp"
+#include <math.h>
+#define SIZE_POCKET 6 
+const float PI = 3.14159265;
 
 using namespace std;
 namespace po = boost::program_options;
+
+void createPocket(Atom* pocket,float distance){
+	
+	struct Vertex2D{
+		
+		float latitude;
+		float longitude;
+		
+	}vertex2D[SIZE_POCKET*SIZE_POCKET];
+	
+	float latAlfa,latBeta,lonAlfa,lonBeta,phi;
+	
+	//Creates a mesh of equidistant 2d points 
+	
+	for(int i=0;i<SIZE_POCKET;i++){
+		for(int j=0;j<SIZE_POCKET;j++){
+		
+			vertex2D[i*SIZE_POCKET+j]->latitude=i;
+			vertex2D[i*SIZE_POCKET+j]->longitude=j;
+			
+		}
+	}
+	
+	   latAlfa= ((vertex2D[2*latmax]->latitude)*PI)/180;
+	   latBeta= ((vertex2D[2*latmax+1]->latitude)*PI)/180;
+	   lonAlfa= ((vertex2D[2*latmax]->longitude)*PI)/180;
+	   lonBeta= ((vertex2D[2*latmax+1]->longitude)*PI)/180;
+	   phi=fabs(lonAlfa-lonBeta); 
+	   
+	   float radius= distance/(acos(sin(latBeta)*sin(latAlfa)+cos(latBeta)*cos(latAlfa)*cos(phi)));
+	   
+	   //Transforms the bidimensional points of a mesh into coordinates of equidistant atoms in the sphere
+	   
+	   for(int i=0;i<SIZE_POCKET;i++){
+			for(int j=0;j<SIZE_POCKET;j++){
+				
+				pocket->atom[i*SIZE_POCKET+j].x= radius*(sin(PI * vertex2D->latitude / SIZE_POCKET) *cos(2*PI * vertex.getLongitude() / SIZE_POCKET));
+				pocket->atom[i*SIZE_POCKET+j].y= radius*(sin(PI * vertex2D->latitude / SIZE_POCKET) *sin(2*PI * vertex.getLongitude() / SIZE_POCKET));
+				pocket->atom[i*SIZE_POCKET+j].z= radius*(cos(PI * vertex2D->latitude / SIZE_POCKET));
+	  
+			}
+		}	  
+}
+
 
 int main( int argc, char** argv ) {
 
     const int N_ELEMENTS=1;
     unsigned int platform_id=0, device_id=0;
 
+	Atoms pocket[36];
+
+    createPocket(&pocket,0.2);
+    
 //	Atom a1, a2, a3, a4, a5, a6, a7, a8;
 //	a1.x=0.0;  a1.y=1.0;  a1.z=0.0;
 //	a2.x=0.0;  a2.y=-1.0; a2.z=0.0;
