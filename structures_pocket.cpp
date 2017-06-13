@@ -109,13 +109,6 @@ void Pocket::transformation()
         spherePoints.push_back(vertex3d);
     }
 
-    vector<Atom>::iterator begin = spherePoints.begin();
-    vector<Atom>::iterator end = begin + latmax - 1;
-    spherePoints.erase(begin, end);
-    
-    Atom vertex(0,0,-1 * radius);
-    spherePoints.push_back(vertex);
-
 }
 
 /*
