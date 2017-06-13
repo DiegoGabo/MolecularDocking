@@ -1,10 +1,12 @@
 #define MAX_SIZE 20
 #include "structures_molecule.hpp"
 
-inline void addAtom(Molecule* molecule, Atom atom)
+void addAtom(Molecule* molecule, float x, float y, float z)
 {
 	int index = molecule->numberOfAtoms;
-	molecule->atoms[index]=atom;
+	molecule->atoms[index].x = x;
+	molecule->atoms[index].y = y;
+	molecule->atoms[index].z = z;
 	molecule->links[index].numberOfLinks=0;
 	molecule->numberOfAtoms += 1;
 }
@@ -88,7 +90,7 @@ inline void copyMolecule(Molecule* molecule, Molecule* moleculeCopied)
 	moleculeCopied->numberOfAtoms=0;
 	for (i=0; i<molecule->numberOfAtoms; i++)
 	{
-		addAtom(moleculeCopied, molecule->atoms[i]);
+		addAtom(moleculeCopied, molecule->atoms[i].x, molecule->atoms[i].y, molecule->atoms[i].z);
 		for (j=0; j < molecule->links[i].numberOfLinks; j++)
 		{
 			if(i > molecule->links[i].atoms[j])
@@ -261,6 +263,7 @@ inline void centre(Molecule* molecule){
 	float x_cm=0;
 	float y_cm=0;
 	float z_cm=0;
+	int i;
 	
 	for(i=0;i<molecule->numberOfAtoms;i++){
 		
@@ -284,7 +287,7 @@ inline void centre(Molecule* molecule){
 
 }
 
-kernel void doAllRotation(global Molecule * molecules) {
+kernel void doAllRotation(global Molecule * molecules) {/*
     const int idx = get_global_id(0);
 	Molecule molecule = molecules[idx];
 	int i, j, k;
@@ -381,5 +384,5 @@ kernel void doAllRotation(global Molecule * molecules) {
 		}
 	}
 	printf("\n\nBest Score: %f", bestScore);
-	printMolecule(&bestMolecule);
+	printMolecule(&bestMolecule);*/
 }
