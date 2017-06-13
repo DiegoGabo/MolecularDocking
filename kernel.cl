@@ -256,6 +256,34 @@ inline int getRotaimer(Molecule* molecule, Rotamer* listOfRotamer)
 	return numberOfRotamer;
 }
 
+inline void centre(Molecule* molecule){
+
+	float x_cm=0;
+	float y_cm=0;
+	float z_cm=0;
+	
+	for(i=0;i<molecule->numberOfAtoms;i++){
+		
+		x_cm = x_cm + molecule->atoms[i].x;
+		y_cm = y_cm + molecule->atoms[i].y;
+		z_cm = z_cm + molecule->atoms[i].z;
+		
+	}
+	
+	x_cm= x_cm/molecule->numberOfAtoms;
+	y_cm= y_cm/molecule->numberOfAtoms;
+	z_cm= z_cm/molecule->numberOfAtoms;
+	
+	for(i=0;i<molecule->numberOfAtoms;i++){
+		
+		molecule->atoms[i].x= molecule->atoms[i].x - x_cm;
+		molecule->atoms[i].y= molecule->atoms[i].y - y_cm;
+		molecule->atoms[i].z= molecule->atoms[i].z - z_cm;
+		
+	}
+
+}
+
 kernel void doAllRotation(global Molecule * molecules) {
     const int idx = get_global_id(0);
 	Molecule molecule = molecules[idx];
@@ -268,6 +296,8 @@ kernel void doAllRotation(global Molecule * molecules) {
 	a2.x=2.0; a2.y=2.0; a2.z=2.0;
 	a3.x=3.0; a3.y=3.0; a3.z=3.0;
 	pocket[0] = a1; pocket[1] = a2; pocket[2] = a3; 
+	
+	centre(&molecule);
 	
 	Rotamer listOfRotamer[MAX_SIZE];
 	int numberOfRotamer = getRotaimer(&molecule, &listOfRotamer);
