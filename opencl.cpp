@@ -8,14 +8,14 @@
 #include <boost/algorithm/string.hpp>
 #include "parser.hpp"
 #include <math.h>
-#define SIZE_POCKET 6 
+#define SIZE_POCKET 5 
 const float PI = 3.14159265;
 
 using namespace std;
 namespace po = boost::program_options;
 using namespace boost::algorithm;
 
-void createPocket(Atom* pocket,float distance){
+void createPocket(Atom pocket[],float distance){
 	
 	struct Vertex2D{
 		
@@ -64,33 +64,9 @@ int main( int argc, char** argv ) {
     const int N_ELEMENTS=1;
     unsigned int platform_id=0, device_id=0;
 
-	Atom pocket[SIZE_POCKET*SIZE_POCKET];
+	Atom* pocket = new Atom[SIZE_POCKET*SIZE_POCKET];
+    createPocket(pocket,0.2);
 
-    //createPocket(&pocket,0.2);
-
-/*
-	Molecule m1;
-	m1.numberOfAtoms=0;
-	addAtom(&m1, 0.0, 1.0, 0.0);
-	addAtom(&m1, 0.0, -1.0, 0.0);
-	addAtom(&m1, 1.0, 0.0, 0.0);
-	addAtom(&m1, 2.0, 0.0, 0.0);
-	addAtom(&m1, 3.0, 1.0, 0.0);
-	addAtom(&m1, 4.0, -1.0, 0.0);
-	addAtom(&m1, 4.0, 0.0, 0.0);
-	addAtom(&m1, -1.0, -1.0, 0.0);
-
-	setEdge(&m1, 0, 2);
-	setEdge(&m1, 1, 2);
-	setEdge(&m1, 1, 7);
-	setEdge(&m1, 2, 3);
-	setEdge(&m1, 3, 4);
-	setEdge(&m1, 3, 5);
-	setEdge(&m1, 4, 6);
-	setEdge(&m1, 5, 6);*/
-
-    //aggiungere device GPU o CPU, togliere membro OR
-    
     string file_name = "NULL";
     int n = 0;
     string device = "NULL";
@@ -118,12 +94,10 @@ int main( int argc, char** argv ) {
     
     
 	//std::unique_ptr<Molecule[]> A(new Molecule[N_ELEMENTS]);
-	Molecule* A = new Molecule[N_ELEMENTS];
-    //A[0] = m1;
+	Molecule* molecules = new Molecule[N_ELEMENTS];
+    //molecules[0] = m1;
     
-    A = parseFile(file_name, n);
-
-	cout << std::to_string(A[0].atoms[0].x);
+    molecules = parseFile(file_name, n);
 
 	// Query for platforms
 	std::vector<cl::Platform> platforms;
@@ -149,10 +123,12 @@ int main( int argc, char** argv ) {
 	// Create a command queue
 	cl::CommandQueue queue = cl::CommandQueue( context, devices[device_id] );   // Select the device.
 	// Create the memory buffers
-	cl::Buffer bufferA=cl::Buffer(context, CL_MEM_READ_ONLY, N_ELEMENTS * sizeof(Molecule));
+	cl::Buffer bufferMolecules=cl::Buffer(context, CL_MEM_READ_ONLY, N_ELEMENTS * sizeof(Molecule));
+	cl::Buffer bufferPocket=cl::Buffer(context, CL_MEM_READ_ONLY, SIZE_POCKET*SIZE_POCKET*sizeof(Atom));
 
 	// Copy the input data to the input buffers using the command queue.
-	queue.enqueueWriteBuffer( bufferA, CL_FALSE, 0, N_ELEMENTS * sizeof(Molecule), A );
+	queue.enqueueWriteBuffer( bufferMolecules, CL_FALSE, 0, N_ELEMENTS * sizeof(Molecule), molecules);
+	queue.enqueueWriteBuffer( bufferPocket, CL_FALSE, 0, SIZE_POCKET*SIZE_POCKET*sizeof(Atom), pocket);
 
 	// Read the program source
 	std::ifstream sourceFile("kernel.cl");
@@ -166,15 +142,17 @@ int main( int argc, char** argv ) {
 	program.build(devices);
 
 	// Make kernel
-	cl::Kernel vecadd_kernel(program, "doAllRotation");
+	cl::Kernel doRotation_kernel(program, "doAllRotation");
 
 	// Set the kernel arguments
-	vecadd_kernel.setArg( 0, bufferA );
+	doRotation_kernel.setArg(0, bufferMolecules);
+	doRotation_kernel.setArg(1, bufferPocket);
+	
 
 	// Execute the kernel
 	cl::NDRange global( N_ELEMENTS );
 	cl::NDRange local( 1 );
-	queue.enqueueNDRangeKernel( vecadd_kernel, cl::NullRange, global, local );
+	queue.enqueueNDRangeKernel( doRotation_kernel, cl::NullRange, global, local );
 
 	std::cout<< "Success!\n";
 	return( EXIT_SUCCESS );
