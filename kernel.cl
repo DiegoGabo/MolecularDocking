@@ -113,7 +113,7 @@ inline void trasform(Atom* atom, float (*matrix)[4])
 
 inline float euclideanDistance(Atom a1, Atom a2)
 {
-	return sqrt(pow((a1.x - a2.x), 2) + pow((a1.y - a2.y), 2) + pow((a1.z - a2.x), 2));
+	return sqrt(pow((a1.x - a2.x), 2) + pow((a1.y - a2.y), 2) + pow((a1.z - a2.z), 2));
 }
 
 inline float calculateScore(Molecule* molecule, Atom pocket[])
@@ -121,7 +121,6 @@ inline float calculateScore(Molecule* molecule, Atom pocket[])
 	const float my_epsilon = 1.0e-16f;
 	float score = 0.0f;
 	int i, j;
-//printf("\n\n\n\n\n\nCALCULATE\n");
 	for (i=0; i< molecule->numberOfAtoms; i++)
 	{
 		Atom atom_l = molecule->atoms[i]; 
@@ -130,20 +129,16 @@ inline float calculateScore(Molecule* molecule, Atom pocket[])
 		for (j=0; j<SIZE_POCKET*SIZE_POCKET ; j++)
 		{
 			Atom atom_p = pocket[j];
-			//printf("\n%f %f %f", pocket[j].x, pocket[j].y, pocket[j].z);
 			float d = euclideanDistance(atom_l, atom_p);
 
 			if (d < distance_min)
 				distance_min = d;
 		}
-
 		score += distance_min;
 	}
 
 	if (score < my_epsilon)
 		score = my_epsilon;
-
-	//printf("\n\n\n\n\n\n");
 
 	return (float)molecule->numberOfAtoms / score;
 }
@@ -292,13 +287,14 @@ inline void centre(Molecule* molecule){
 
 }
 
-kernel void doAllRotation(global Molecule * molecules, global Atom p[]) {
+kernel void doAllRotation(global Molecule * molecules, global Atom p[], global char* bestMoleculeName, global float* bestScore) 
+{
 
     const int idx = get_global_id(0);
 	Molecule molecule = molecules[idx];
 
 	int i, j, k;
-	//printMolecule(&molecule);
+	printMolecule(&molecule);
 
 	Atom pocket[SIZE_POCKET * SIZE_POCKET];
 	for (i=0; i<25; i++)
@@ -318,7 +314,6 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[]) {
 	}
 	
 	Molecule bestMolecule;
-	float bestScore = 0;
 
 	for (k=0; k<numberOfRotamer; k++)
 	{
@@ -338,11 +333,12 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[]) {
 		for (angle=0; angle<360; angle+=60)
 		{
 			createRotationMatrix(angle, molecule.atoms[currentRotamer.first], molecule.atoms[currentRotamer.second], &rotationMatrix);
-			//printRotationMatrix(&rotationMatrix, angle);
+			printRotationMatrix(&rotationMatrix, angle);
 
 			Molecule moleculeRotated;
 			float score = rotateMolecule(&molecule, &moleculeRotated, &rotationMatrix, &rotamerSuccessor, pointsToTrasform, &pocket);
-			//printMolecule(&moleculeRotated);
+			printMolecule(&moleculeRotated);
+			printf("\nWith score %f", score);
 
 			if(score > bestLocalScore)
 			{
@@ -352,7 +348,8 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[]) {
 		}
 
 		printf("\n\nNow the best molecule is ");
-		//printMolecule(&bestLocalMolecule);
+		printMolecule(&bestLocalMolecule);
+		printf("\nWith best local score %f", bestLocalScore);
 		
 		Rotamer oppositeRotamer;
 		oppositeRotamer.first = currentRotamer.second;
@@ -368,11 +365,12 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[]) {
 		for (angle=0; angle<360; angle+=60)
 		{
 			createRotationMatrix(angle, molecule.atoms[currentRotamer.second], molecule.atoms[currentRotamer.first], &rotationMatrix);
-			//printRotationMatrix(&rotationMatrix, angle);
+			printRotationMatrix(&rotationMatrix, angle);
 
 			Molecule moleculeRotated;
 			float score = rotateMolecule(&bestLocalMolecule, &moleculeRotated, &rotationMatrix, &rotamerSuccessor, pointsToTrasform, &pocket);
-			//printMolecule(&moleculeRotated);
+			printMolecule(&moleculeRotated);
+			printf("\nWith score %f", score);
 			
 			if(score > bestLocalScore)
 			{
@@ -381,15 +379,18 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[]) {
 			}
 		}
 		printf("\n\nAnd now the best molecule is ");
-		//printMolecule(&bestLocalMolecule);
+		printMolecule(&bestLocalMolecule);
+		printf("\nWith best local score %f", bestLocalScore);
 		
-		if(bestLocalScore > bestScore)
+		if(bestLocalScore > bestScore[0])
 		{
 			copyMolecule(&bestLocalMolecule, &bestMolecule);
-			bestScore = bestLocalScore;
+			bestScore[0] = bestLocalScore;
 		}
 	}
-	printf("\n\nBest Score: %f", bestScore);
+	printf("\n\nBest Score: %f", bestScore[0]);
 	printMolecule(&bestMolecule);
+	bestMoleculeName = &(bestMolecule.name);
+	
 
 }

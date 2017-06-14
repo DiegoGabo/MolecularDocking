@@ -9,6 +9,8 @@
 #include "parser.hpp"
 #include <math.h>
 #define SIZE_POCKET 5 
+#define NAME_DIMENSION 13
+
 const float PI = 3.14159265;
 
 using namespace std;
@@ -61,11 +63,13 @@ void createPocket(Atom pocket[],float distance){
 
 int main( int argc, char** argv ) {
 
-    const int N_ELEMENTS=1;
+    int N_ELEMENTS;
     unsigned int platform_id=0, device_id=0;
 
 	Atom* pocket = new Atom[SIZE_POCKET*SIZE_POCKET];
     createPocket(pocket,0.2);
+	float* score = new float[1];
+	char* bestMolecule = new char[NAME_DIMENSION];
 
     string file_name = "NULL";
     int n = 0;
@@ -92,7 +96,7 @@ int main( int argc, char** argv ) {
         return 0;
     }
     
-    
+    N_ELEMENTS = n;
 	//std::unique_ptr<Molecule[]> A(new Molecule[N_ELEMENTS]);
 	Molecule* molecules = new Molecule[N_ELEMENTS];
     //molecules[0] = m1;
@@ -125,10 +129,14 @@ int main( int argc, char** argv ) {
 	// Create the memory buffers
 	cl::Buffer bufferMolecules=cl::Buffer(context, CL_MEM_READ_ONLY, N_ELEMENTS * sizeof(Molecule));
 	cl::Buffer bufferPocket=cl::Buffer(context, CL_MEM_READ_ONLY, SIZE_POCKET*SIZE_POCKET*sizeof(Atom));
+	cl::Buffer bufferBestMolecule=cl::Buffer(context, CL_MEM_READ_ONLY, NAME_DIMENSION*sizeof(char));
+	cl::Buffer bufferBestScore=cl::Buffer(context, CL_MEM_READ_ONLY, sizeof(score));
 
 	// Copy the input data to the input buffers using the command queue.
 	queue.enqueueWriteBuffer( bufferMolecules, CL_FALSE, 0, N_ELEMENTS * sizeof(Molecule), molecules);
 	queue.enqueueWriteBuffer( bufferPocket, CL_FALSE, 0, SIZE_POCKET*SIZE_POCKET*sizeof(Atom), pocket);
+	queue.enqueueWriteBuffer( bufferBestMolecule, CL_FALSE, 0, NAME_DIMENSION*sizeof(char), bestMolecule);
+	queue.enqueueWriteBuffer( bufferBestScore, CL_FALSE, 0, sizeof(float), score);
 
 	// Read the program source
 	std::ifstream sourceFile("kernel.cl");
@@ -147,13 +155,17 @@ int main( int argc, char** argv ) {
 	// Set the kernel arguments
 	doRotation_kernel.setArg(0, bufferMolecules);
 	doRotation_kernel.setArg(1, bufferPocket);
-	
+	doRotation_kernel.setArg(2, bufferBestMolecule);
+	doRotation_kernel.setArg(3, bufferBestScore);
 
 	// Execute the kernel
 	cl::NDRange global( N_ELEMENTS );
 	cl::NDRange local( 1 );
 	queue.enqueueNDRangeKernel( doRotation_kernel, cl::NullRange, global, local );
+	queue.enqueueReadBuffer( bufferBestScore, CL_TRUE, 0, sizeof(float), score);
+	queue.enqueueReadBuffer( bufferBestMolecule, CL_TRUE, 0, NAME_DIMENSION*sizeof(char), bestMolecule);
 
-	std::cout<< "Success!\n";
+	std::cout << "\nThe best score is:  " << std::to_string(score[0]);
+	std::cout << "\nThe best Molecule is:  " << (bestMolecule);
 	return( EXIT_SUCCESS );
 }
