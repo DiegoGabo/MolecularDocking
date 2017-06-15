@@ -158,3 +158,45 @@ Molecule* parseFile(string name, int l)
     
     return molecules;
 }
+
+int getDimension(string file_name)
+{
+    string name (file_name);
+    string two_dot (":");
+    string line = "";
+    
+    fstream statistics("statistics.txt");
+    
+    if ( statistics.is_open() )
+    {
+        while (getline(statistics, line))
+        {
+            size_t found = str.find(name);
+            
+            if (found != string::npos)
+            {
+                found = str.find(two_dot);
+                
+                if (found != string::npos)
+                {
+                    string num = "";
+                    
+                    found += 2;
+                    
+                    while(str.at(found) != ' ')
+                    {
+                        temp_string += str.at(found);
+                        found ++;
+                    }
+                    
+                    return stoi(temp_string);
+                }
+            }
+        }
+    }
+    else
+    {
+        cout << "Unable to open statistics.txt";
+        return 0;
+    }
+}
