@@ -287,7 +287,7 @@ inline void centre(Molecule* molecule){
 
 }
 
-kernel void doAllRotation(global Molecule * molecules, global Atom p[], global char* bestMoleculeName, global float* bestScore) 
+kernel void doAllRotation(global Molecule * molecules, global Atom p[], global int* bestMoleculeIndex, global float* bestScore) 
 {
 
     const int idx = get_global_id(0);
@@ -354,7 +354,8 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[], global c
 		Rotamer oppositeRotamer;
 		oppositeRotamer.first = currentRotamer.second;
 		oppositeRotamer.second = currentRotamer.first;
-		
+		Molecule secondStepMolecule;
+		copyMolecule(&bestLocalMolecule, &secondStepMolecule);
 	
 		pointsToTrasform = getRotamerSuccessor(&bestLocalMolecule, oppositeRotamer, &rotamerSuccessor);
 		
@@ -368,7 +369,7 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[], global c
 			printRotationMatrix(&rotationMatrix, angle);
 
 			Molecule moleculeRotated;
-			float score = rotateMolecule(&bestLocalMolecule, &moleculeRotated, &rotationMatrix, &rotamerSuccessor, pointsToTrasform, &pocket);
+			float score = rotateMolecule(&secondStepMolecule, &moleculeRotated, &rotationMatrix, &rotamerSuccessor, pointsToTrasform, &pocket);
 			printMolecule(&moleculeRotated);
 			printf("\nWith score %f", score);
 			
@@ -386,11 +387,9 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[], global c
 		{
 			copyMolecule(&bestLocalMolecule, &bestMolecule);
 			bestScore[0] = bestLocalScore;
+			bestMoleculeIndex = idx;
 		}
 	}
 	printf("\n\nBest Score: %f", bestScore[0]);
 	printMolecule(&bestMolecule);
-	bestMoleculeName = &(bestMolecule.name);
-	
-
 }

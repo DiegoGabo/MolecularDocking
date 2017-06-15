@@ -69,7 +69,7 @@ int main( int argc, char** argv ) {
 	Atom* pocket = new Atom[SIZE_POCKET*SIZE_POCKET];
     createPocket(pocket,0.2);
 	float* score = new float[1];
-	char* bestMolecule = new char[NAME_DIMENSION];
+	int* bestMolecule = new int[1];
 
     string file_name = "NULL";
     int n = 0;
@@ -129,13 +129,13 @@ int main( int argc, char** argv ) {
 	// Create the memory buffers
 	cl::Buffer bufferMolecules=cl::Buffer(context, CL_MEM_READ_ONLY, N_ELEMENTS * sizeof(Molecule));
 	cl::Buffer bufferPocket=cl::Buffer(context, CL_MEM_READ_ONLY, SIZE_POCKET*SIZE_POCKET*sizeof(Atom));
-	cl::Buffer bufferBestMolecule=cl::Buffer(context, CL_MEM_READ_ONLY, NAME_DIMENSION*sizeof(char));
+	cl::Buffer bufferBestMolecule=cl::Buffer(context, CL_MEM_READ_ONLY, sizeof(int));
 	cl::Buffer bufferBestScore=cl::Buffer(context, CL_MEM_READ_ONLY, sizeof(score));
 
 	// Copy the input data to the input buffers using the command queue.
 	queue.enqueueWriteBuffer( bufferMolecules, CL_FALSE, 0, N_ELEMENTS * sizeof(Molecule), molecules);
 	queue.enqueueWriteBuffer( bufferPocket, CL_FALSE, 0, SIZE_POCKET*SIZE_POCKET*sizeof(Atom), pocket);
-	queue.enqueueWriteBuffer( bufferBestMolecule, CL_FALSE, 0, NAME_DIMENSION*sizeof(char), bestMolecule);
+	queue.enqueueWriteBuffer( bufferBestMolecule, CL_FALSE, 0, sizeof(int), bestMolecule);
 	queue.enqueueWriteBuffer( bufferBestScore, CL_FALSE, 0, sizeof(float), score);
 
 	// Read the program source
@@ -163,9 +163,10 @@ int main( int argc, char** argv ) {
 	cl::NDRange local( 1 );
 	queue.enqueueNDRangeKernel( doRotation_kernel, cl::NullRange, global, local );
 	queue.enqueueReadBuffer( bufferBestScore, CL_TRUE, 0, sizeof(float), score);
-	queue.enqueueReadBuffer( bufferBestMolecule, CL_TRUE, 0, NAME_DIMENSION*sizeof(char), bestMolecule);
+	queue.enqueueReadBuffer( bufferBestMolecule, CL_TRUE, 0, sizeof(int), bestMolecule);
 
 	std::cout << "\nThe best score is:  " << std::to_string(score[0]);
-	std::cout << "\nThe best Molecule is:  " << (bestMolecule);
+	//string name = str(molecules[*bestMolecule].name);
+	std::cout << "\nThe best Molecule is:  " << molecules[*bestMolecule].name;
 	return( EXIT_SUCCESS );
 }
