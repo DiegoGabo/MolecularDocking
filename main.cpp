@@ -190,14 +190,14 @@ int main(int argc, char *argv[])
         return 0;
     }
     
-    if (file_name.compare("db.mol2" == 0) && n_string.compare("all") == 0)
+    if (file_name.compare("db.mol2") == 0 && n_string.compare("all") == 0)
         n = DB_DIMENSION;
-    else if(n_string.compare("all")) == 0)
+    else if(n_string.compare("all") == 0)
         n = getDimension(file_name);
     else
         n = stoi(n_string);
     
-    vector<Molecule> molecules = parseFile(file_name, n);
+    std::vector<Molecule> molecules = parseFile(file_name, n);
     
     float bestScore = 0;
     Molecule bestMolecule("");
@@ -254,11 +254,14 @@ int main(int argc, char *argv[])
                     bestLocalScore = score;
                 }
             }
+			
+			Molecule secondStepMolecule(bestLocalMolecule.getName());
+			secondStepMolecule = copyMolecule(bestLocalMolecule);
             
             for (int angle = 0; angle<360; angle += 120)
             {
                 Molecule moleculeRotated = Molecule(bestLocalMolecule.getName());
-                float score = rotateMolecule(bestLocalMolecule, moleculeRotated, angle, make_pair(rotamer.second, rotamer.first), pocket);
+                float score = rotateMolecule(secondStepMolecule, moleculeRotated, angle, make_pair(rotamer.second, rotamer.first), pocket);
                 if (score > bestLocalScore)
                 {
                     bestLocalMolecule = copyMolecule(moleculeRotated);
@@ -277,7 +280,7 @@ int main(int argc, char *argv[])
     end=clock();
     executionTime=((double)(end-start))/CLOCKS_PER_SEC;
     cout << "\n\nThe best score is: " << std::to_string(bestScore);
-    cout << "\n\nBest molecule:\n " << bestMolecule.to_string() << std::endl;
+    cout << "\n\nBest molecule:\n " << bestMolecule.getName() << std::endl;
     cout << "\n\nExecution time : "<< executionTime;
     cout << "\n\nAtom processed : " << numberOfProcessedAtoms;
     throughput= numberOfProcessedAtoms/executionTime;
