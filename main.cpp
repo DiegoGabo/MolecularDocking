@@ -10,6 +10,7 @@
 #include "parser.hpp"
 #include <time.h>
 
+#define DB_DIMENSION 3961
 
 #define DEBUG
 #undef DEBUG
@@ -168,27 +169,35 @@ float rotateMolecule(const Molecule & molecule, Molecule & moleculeRotated, int 
 
 int main(int argc, char *argv[])
 {
-    string file_name = "NULL";
+    string file_name = "NULL NAME";
+    string n_string = "NULL NUMBER";
     int n = 0;
     
     po::options_description desc;
     
     desc.add_options()
         ("help, h", "Shows description of the options")
-        ("file_name, f", po::value<string>(&file_name)->default_value("ace_ligands.mol2"), "Set file name")
-        ("number, n", po::value<int>(&n)->default_value(1), "Set the number of the elements to be read");
+        ("file_name, f", po::value<string>(&file_name)->default_value("db.mol2"), "Set file name; if not setted <db.mol2> will be read.")
+        ("number, n", po::value<string>(&n_string)->default_value("all"), "Set the number of the elements to be read; default value is <all>");
     
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
     
-    if(!vm.count("file_name"))
+    if(vm.count("help"))
     {
-        cout << "No file name inserted\n";
+        cout << desc;
         return 0;
     }
     
-    std::vector<Molecule> molecules = parseFile(file_name, n);
+    if (file_name.compare("db.mol2" == 0) && n_string.compare("all") == 0)
+        n = DB_DIMENSION;
+    else if(n_string.compare("all")) == 0)
+        n = getDimension(file_name);
+    else
+        n = stoi(n_string);
+    
+    vector<Molecule> molecules = parseFile(file_name, n);
     
     float bestScore = 0;
     Molecule bestMolecule("");
