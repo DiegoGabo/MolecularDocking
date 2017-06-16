@@ -63,12 +63,12 @@ Molecule* parseFile(string name, int l)
     //if limit is zero the parser will read all the ligands
     if (l < 0)
     {
-        limit = l;
+        limit = l - 1;
         dimension = -l;
     }
     else
     {
-        limit = -l;
+        limit = -l - 1;
         dimension = l;
     }
     
@@ -108,6 +108,7 @@ Molecule* parseFile(string name, int l)
                 bonds_flag = false;
 
                 mol_index++;
+                limit++;
 
             }
             else if (text_elements[0].compare(MOLECULE_ATOMS) == 0)

@@ -84,7 +84,6 @@ int main( int argc, char** argv ) {
     string file_name = "NULL_NAME";
     string n_string = "NULL_NUMBER";
     string device_str = "NULL_DEVICE";
-    int n = 0;
     
     po::options_description desc;
     
@@ -106,19 +105,18 @@ int main( int argc, char** argv ) {
     
 
     if (file_name.compare("db.mol2") == 0 && n_string.compare("all") == 0)
-        n = DB_DIMENSION;
+        N_ELEMENTS = DB_DIMENSION;
     else if(n_string.compare("all") == 0)
-        n = getDimension(file_name);
+        N_ELEMENTS = getDimension(file_name);
     else
-        n = stoi(n_string);
+        N_ELEMENTS = stoi(n_string);
 
     
-    N_ELEMENTS = n;
 	//std::unique_ptr<Molecule[]> A(new Molecule[N_ELEMENTS]);
 	Molecule* molecules = new Molecule[N_ELEMENTS];
     //molecules[0] = m1;
     
-    molecules = parseFile(file_name, n);
+    molecules = parseFile(file_name, N_ELEMENTS);
 
 	// Query for platforms
 	std::vector<cl::Platform> platforms;
