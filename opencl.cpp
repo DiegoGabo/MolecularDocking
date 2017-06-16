@@ -1,4 +1,4 @@
-#include "structures_molecule.hpp"
+fx#include "structures_molecule.hpp"
 #include <CL/cl.hpp>
 #include <iostream>
 #include <fstream>
@@ -8,6 +8,7 @@
 #include <boost/algorithm/string.hpp>
 #include "parser.hpp"
 #include <math.h>
+#include <time.h>
 
 #define SIZE_POCKET 5
 #define NAME_DIMENSION 13
@@ -64,6 +65,7 @@ void createPocket(Atom pocket[],float distance){
 
 
 int main( int argc, char** argv ) {
+	
 
     int N_ELEMENTS;
     unsigned int platform_id=0, device_id=0;
@@ -73,6 +75,12 @@ int main( int argc, char** argv ) {
 	float* score = new float[1];
 	int* bestMolecule = new int[1];
 
+	//for calculating execution time 
+	clock_t start, end;
+	double executionTime;
+	float numberOfProcessedAtoms = 0;
+	float throughput;
+	
     string file_name = "NULL_NAME";
     string n_string = "NULL_NUMBER";
     string device = "NULL_DEVICE";
@@ -160,6 +168,9 @@ int main( int argc, char** argv ) {
 	// Build the program for the devices
 	program.build(devices);
 
+
+	start=clock();
+	
 	// Make kernel
 	cl::Kernel doRotation_kernel(program, "doAllRotation");
 
@@ -176,8 +187,23 @@ int main( int argc, char** argv ) {
 	queue.enqueueReadBuffer( bufferBestScore, CL_TRUE, 0, sizeof(float), score);
 	queue.enqueueReadBuffer( bufferBestMolecule, CL_TRUE, 0, sizeof(int), bestMolecule);
 
-	std::cout << "\nThe best score is:  " << std::to_string(score[0]);
 	//string name = str(molecules[*bestMolecule].name);
-	std::cout << "\nThe best Molecule is:  " << molecules[*bestMolecule].name;
+	std::cout << "\n Best Molecule:  " << molecules[*bestMolecule].name;
+	std::cout << "\n Best score:  " << std::to_string(score[0]);
+	
 	return( EXIT_SUCCESS );
+	
+	end=clock();
+	
+	for (int i=0; i< N_ELEMENTS ; i++){    
+	    	
+		numberOfProcessedAtoms + = molecules[i].numberOfAtoms;
+	
+	}
+	
+	executionTime=((double)(end-start))/CLOCKS_PER_SEC;
+	cout << "\n\nExecution time : "<< executionTime;
+	throughput= numberOfProcessedAtoms/executionTime;
+	cout << "\n\nThroughput : "<< throughput;
+
 }
