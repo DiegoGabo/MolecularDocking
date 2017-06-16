@@ -8,8 +8,10 @@
 #include <boost/algorithm/string.hpp>
 #include "parser.hpp"
 #include <math.h>
-#define SIZE_POCKET 5 
+
+#define SIZE_POCKET 5
 #define NAME_DIMENSION 13
+#define DB_DIMENSION 3961
 
 const float PI = 3.14159265;
 
@@ -71,16 +73,17 @@ int main( int argc, char** argv ) {
 	float* score = new float[1];
 	int* bestMolecule = new int[1];
 
-    string file_name = "NULL";
+    string file_name = "NULL_NAME";
+    string n_string = "NULL_NUMBER";
+    string device = "NULL_DEVICE";
     int n = 0;
-    string device = "NULL";
     
     po::options_description desc;
     
     desc.add_options()
     ("help, h", "Shows description of the options")
-    ("file_name, f", po::value<string>(&file_name)->default_value("ace_ligands.mol2"), "Set file name")
-    ("number, n", po::value<int>(&n)->default_value(1), "Set the number of the elements to be read")
+    ("file_name, f", po::value<string>(&file_name)->default_value("db.mol2"), "Set file name; if not setted <db.mol2> will be read.")
+    ("number, n", po::value<string>(&n_string)->default_value("all"), "Set the number of the elements to be read; default value is <all>");
     ("device, d", po::value<string>(&device)->default_value("cpu"), "Set the type of device you want use. Available option: <gpu> or <cpu>");
     
     po::variables_map vm;
@@ -95,6 +98,14 @@ int main( int argc, char** argv ) {
         cout << "Device not setted\n";
         return 0;
     }
+    
+    if (file_name.compare("db.mol2") == 0 && n_string.compare("all") == 0)
+        n = DB_DIMENSION;
+    else if(n_string.compare("all") == 0)
+        n = getDimension(file_name);
+    else
+        n = stoi(n_string);
+
     
     N_ELEMENTS = n;
 	//std::unique_ptr<Molecule[]> A(new Molecule[N_ELEMENTS]);
