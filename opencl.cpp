@@ -91,7 +91,7 @@ int main( int argc, char** argv ) {
     desc.add_options()
     ("help, h", "Shows description of the options")
     ("file_name, f", po::value<string>(&file_name)->default_value("db.mol2"), "Set file name; if not setted <db.mol2> will be read.")
-    ("number, n", po::value<string>(&n_string)->default_value("all"), "Set the number of the elements to be read; default value is <all>");
+    ("number, n", po::value<string>(&n_string)->default_value("all"), "Set the number of the elements to be read; default value is <all>")
     ("device, d", po::value<string>(&device_str)->default_value("cpu"), "Set the type of device you want use. Available option: <gpu> or <cpu>");
     
     po::variables_map vm;
