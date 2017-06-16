@@ -1,4 +1,4 @@
-fx#include "structures_molecule.hpp"
+#include "structures_molecule.hpp"
 #include <CL/cl.hpp>
 #include <iostream>
 #include <fstream>
