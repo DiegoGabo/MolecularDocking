@@ -6,6 +6,6 @@
 #include <string>
 
 std::vector<Molecule> parseFile(std::string n, int l);
-int getDimension(std::string file_name)
+int getDimension(std::string file_name);
 
 #endif

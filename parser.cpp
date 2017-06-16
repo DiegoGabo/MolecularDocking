@@ -165,11 +165,11 @@ int getDimension(string file_name)
     {
         while (getline(statistics, line))
         {
-            size_t found = str.find(name);
+            size_t found = line.find(name);
             
             if (found != string::npos)
             {
-                found = str.find(two_dot);
+                found = line.find(two_dot);
                 
                 if (found != string::npos)
                 {
@@ -177,13 +177,13 @@ int getDimension(string file_name)
                     
                     found += 2;
                     
-                    while(str.at(found) != ' ')
+                    while(line.at(found) != ' ')
                     {
-                        temp_string += str.at(found);
+                        num += line.at(found);
                         found ++;
                     }
                     
-                    return stoi(temp_string);
+                    return stoi(num);
                 }
             }
         }
