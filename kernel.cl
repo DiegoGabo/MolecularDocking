@@ -410,7 +410,7 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[], global i
 		{
 			copyMolecule(&bestLocalMolecule, &bestMolecule);
 			bestScore[0] = bestLocalScore;
-			bestMoleculeIndex = idx;
+			*bestMoleculeIndex = idx;
 		}
 	}
 }

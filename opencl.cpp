@@ -83,7 +83,7 @@ int main( int argc, char** argv ) {
 	
     string file_name = "NULL_NAME";
     string n_string = "NULL_NUMBER";
-    string device = "NULL_DEVICE";
+    string device = "cpu";
     int n = 0;
     
     po::options_description desc;
@@ -101,7 +101,7 @@ int main( int argc, char** argv ) {
     if(vm.count("help"))
         return 0;
 
-    if(!vm.count("device"))
+    if(vm.count("device"))
     {
         cout << "Device not setted\n";
         return 0;
@@ -191,13 +191,11 @@ int main( int argc, char** argv ) {
 	std::cout << "\n Best Molecule:  " << molecules[*bestMolecule].name;
 	std::cout << "\n Best score:  " << std::to_string(score[0]);
 	
-	return( EXIT_SUCCESS );
-	
 	end=clock();
 	
 	for (int i=0; i< N_ELEMENTS ; i++){    
 	    	
-		numberOfProcessedAtoms + = molecules[i].numberOfAtoms;
+		numberOfProcessedAtoms += molecules[i].numberOfAtoms;
 	
 	}
 	
@@ -205,5 +203,7 @@ int main( int argc, char** argv ) {
 	cout << "\n\nExecution time : "<< executionTime;
 	throughput= numberOfProcessedAtoms/executionTime;
 	cout << "\n\nThroughput : "<< throughput;
+
+	return( EXIT_SUCCESS );
 
 }
