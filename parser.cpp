@@ -2,9 +2,7 @@
 
 #include "parser.hpp"
 #include <fstream>
-#include <iostream>
 #include <string>
-#include <cstring>
 #include <vector>
 #include <list>
 #include "structures_molecule.hpp"
@@ -53,30 +51,12 @@ This method takes a file as parameter and returns a vectors containing the molec
  @param a file to be parsed
  @return a vector containing molecules
  */
-Molecule* parseFile(string name, int l)
+vector<Molecule> parseFile(string name, int l)
 {
-    int limit = 0;
-    int dimension = 0;
+    vector<Molecule> molecules;
     
-    //if limit is zero the parser will read all the ligands
-    if (l < 0)
-    {
-        limit = l;
-        dimension = -l;
-    }
-    else if( l == 0)
-    {
-        limit = 1;
-        dimension = 50;
-    }
-    else
-    {
-        limit = -l;
-        dimension = l;
-    }
-    
-     Molecule* molecules = new Molecule[100];
-
+    if(l == 0)
+        return molecules;
     
     fstream ligands(name);
     
@@ -84,12 +64,22 @@ Molecule* parseFile(string name, int l)
     {
         string line;
         vector<string> text_elements;
+
+        int limit = 0;
+        
+        //if limit is zero the parser will read all the ligands
+        if (l < 0)
+            limit = l;
+        else if( l == 0)
+            limit = 1;
+        else
+            limit = -l;
+        
+        Molecule* temp_molecule = new Molecule(MOLECULE_NULL);
         
         bool name_flag = false;
         bool atoms_flag = false;
         bool bonds_flag = false;
-        
-        int mol_index = -1;
         
         while (getline(ligands, line) and limit)
         {
@@ -106,9 +96,13 @@ Molecule* parseFile(string name, int l)
                 name_flag = true;
                 atoms_flag = false;
                 bonds_flag = false;
-
-                mol_index++;
-
+                
+                if (temp_molecule->getName().compare(MOLECULE_NULL) != 0)
+                {
+                    molecules.push_back(*temp_molecule);
+                    temp_molecule = new Molecule(MOLECULE_NULL);
+                    limit++;
+                }
             }
             else if (text_elements[0].compare(MOLECULE_ATOMS) == 0)
             {
@@ -130,7 +124,7 @@ Molecule* parseFile(string name, int l)
                     continue;   //we are skipping the part between "@<TRIPOS> MOLECULE" and "@<TRIPOS> ATOM"
                 else if (name_flag && !atoms_flag && !bonds_flag)
                 {
-                    strcpy(molecules[mol_index].name, text_elements[0].c_str());
+                    temp_molecule->setName(text_elements[0]);
                     name_flag = false;
                 }
                 else if (!name_flag && atoms_flag && !bonds_flag)
@@ -139,14 +133,14 @@ Molecule* parseFile(string name, int l)
                     float y = stof(text_elements[3]);
                     float z = stof(text_elements[4]);
                     
-                    addAtom(&molecules[mol_index], x, y, z);
+                    temp_molecule->addAtom(Atom (x, y, z));
                 }
                 else if (!name_flag && !atoms_flag && bonds_flag)
                 {
                     int source = stoi(text_elements[1]) -1 ;
                     int destination = stoi(text_elements[2]) - 1;
                     
-                    setEdge(&molecules[mol_index], source, destination);
+                    temp_molecule->setEdge(source, destination);
                 }
             }
         }
