@@ -127,7 +127,7 @@ int main( int argc, char** argv ) {
 	std::vector<cl::Device> devices;
     
     // Select the platform.
-    to_lower(device);
+    to_lower(device_str);
     if(device_str.compare("gpu") == 0)
         platforms[platform_id].getDevices(CL_DEVICE_TYPE_GPU, &devices);
     else if(device_str.compare("cpu") == 0)
