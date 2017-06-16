@@ -83,7 +83,7 @@ int main( int argc, char** argv ) {
 	
     string file_name = "NULL_NAME";
     string n_string = "NULL_NUMBER";
-    string device = "cpu";
+    string device_str = "NULL_DEVICE";
     int n = 0;
     
     po::options_description desc;
@@ -92,21 +92,19 @@ int main( int argc, char** argv ) {
     ("help, h", "Shows description of the options")
     ("file_name, f", po::value<string>(&file_name)->default_value("db.mol2"), "Set file name; if not setted <db.mol2> will be read.")
     ("number, n", po::value<string>(&n_string)->default_value("all"), "Set the number of the elements to be read; default value is <all>");
-    ("device, d", po::value<string>(&device)->default_value("cpu"), "Set the type of device you want use. Available option: <gpu> or <cpu>");
+    ("device, d", po::value<string>(&device_str)->default_value("cpu"), "Set the type of device you want use. Available option: <gpu> or <cpu>");
     
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
     po::notify(vm);
     
     if(vm.count("help"))
-        return 0;
-
-    if(vm.count("device"))
     {
-        cout << "Device not setted\n";
+        cout << desc;
         return 0;
     }
     
+
     if (file_name.compare("db.mol2") == 0 && n_string.compare("all") == 0)
         n = DB_DIMENSION;
     else if(n_string.compare("all") == 0)
@@ -130,9 +128,9 @@ int main( int argc, char** argv ) {
     
     // Select the platform.
     to_lower(device);
-    if(device.compare("gpu") == 0)
+    if(device_str.compare("gpu") == 0)
         platforms[platform_id].getDevices(CL_DEVICE_TYPE_GPU, &devices);
-    else if(device.compare("cpu") == 0)
+    else if(device_str.compare("cpu") == 0)
         platforms[platform_id].getDevices(CL_DEVICE_TYPE_CPU, &devices);
     else
     {
