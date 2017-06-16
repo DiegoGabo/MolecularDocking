@@ -1,6 +1,8 @@
 #define MAX_SIZE 100
 #define SIZE_POCKET 5 
 #include "structures_molecule.hpp"
+#define DEBUG
+#undef DEBUG
 
 void addAtom(Molecule* molecule, float x, float y, float z)
 {
@@ -27,6 +29,7 @@ inline void setEdge(Molecule * molecule, int src, int dest)
 inline void printMolecule(Molecule* molecule)
 {
 	int i, j;
+	#ifdef DEBUG
 	for(i = 0; i<molecule->numberOfAtoms; i++)
 		printf("\nAtom number %d: x = %f, y = %f, z = %f", i, molecule->atoms[i].x, molecule->atoms[i].y, molecule->atoms[i].z);
 
@@ -36,10 +39,12 @@ inline void printMolecule(Molecule* molecule)
 		for(j=0; j<molecule->links[i].numberOfLinks; j++)
 			printf("%d ", molecule->links[i].atoms[j]);
 	}
+	#endif
 }
 
 inline void printRotationMatrix(float (*rotationMatrix)[4] , int angle)
 {
+	#ifdef DEBUG
 	printf("\n\nRotation matrix for a %d degree rotation\n", angle);
 	int i, j;
 	for (i=0; i<4; i++)
@@ -50,6 +55,7 @@ inline void printRotationMatrix(float (*rotationMatrix)[4] , int angle)
 		}
 		printf("\n");
 	}
+	#endif
 }
 
 inline void createRotationMatrix(int angle, Atom first, Atom second, float (*rotationMatrix)[4])
@@ -307,11 +313,13 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[], global i
 	Rotamer listOfRotamer[MAX_SIZE];
 	int numberOfRotamer = getRotaimer(&molecule, &listOfRotamer);
 	
+	#ifdef DEBUG
 	printf("\nList of rotamers");
 	for(i=0; i<numberOfRotamer; i++)
 	{
 		printf("\nRotamer %d: %d %d", i, listOfRotamer[i].first, listOfRotamer[i].second);
 	}
+	#endif
 	
 	Molecule bestMolecule;
 
@@ -321,10 +329,12 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[], global i
 		int rotamerSuccessor[MAX_SIZE];
 		int pointsToTrasform = getRotamerSuccessor(&molecule, currentRotamer, &rotamerSuccessor);
 		
+		#ifdef DEBUG
 		printf("\n%d points to trasform:  ", pointsToTrasform);
 		for(j=0; j<pointsToTrasform; j++)
 			printf("%d  ", rotamerSuccessor[j]);
-
+		#endif
+		
 		int angle;
 		float bestLocalScore = 0;
         Molecule bestLocalMolecule;
@@ -338,40 +348,10 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[], global i
 			Molecule moleculeRotated;
 			float score = rotateMolecule(&molecule, &moleculeRotated, &rotationMatrix, &rotamerSuccessor, pointsToTrasform, &pocket);
 			printMolecule(&moleculeRotated);
+			
+			#ifdef DEBUG
 			printf("\nWith score %f", score);
-
-			if(score > bestLocalScore)
-			{
-				copyMolecule(&moleculeRotated, &bestLocalMolecule);
-				bestLocalScore = score;
-			}
-		}
-
-		printf("\n\nNow the best molecule is ");
-		printMolecule(&bestLocalMolecule);
-		printf("\nWith best local score %f", bestLocalScore);
-		
-		Rotamer oppositeRotamer;
-		oppositeRotamer.first = currentRotamer.second;
-		oppositeRotamer.second = currentRotamer.first;
-		Molecule secondStepMolecule;
-		copyMolecule(&bestLocalMolecule, &secondStepMolecule);
-	
-		pointsToTrasform = getRotamerSuccessor(&bestLocalMolecule, oppositeRotamer, &rotamerSuccessor);
-		
-		printf("\n%d points to trasform:  ", pointsToTrasform);
-		for(j=0; j<pointsToTrasform; j++)
-			printf("%d  ", rotamerSuccessor[j]);
-
-		for (angle=0; angle<360; angle+=60)
-		{
-			createRotationMatrix(angle, molecule.atoms[currentRotamer.second], molecule.atoms[currentRotamer.first], &rotationMatrix);
-			printRotationMatrix(&rotationMatrix, angle);
-
-			Molecule moleculeRotated;
-			float score = rotateMolecule(&secondStepMolecule, &moleculeRotated, &rotationMatrix, &rotamerSuccessor, pointsToTrasform, &pocket);
-			printMolecule(&moleculeRotated);
-			printf("\nWith score %f", score);
+			#endif
 			
 			if(score > bestLocalScore)
 			{
@@ -379,9 +359,52 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[], global i
 				bestLocalScore = score;
 			}
 		}
+		
+		#ifdef DEBUG
+		printf("\n\nNow the best molecule is ");
+		printMolecule(&bestLocalMolecule);
+		printf("\nWith best local score %f", bestLocalScore);
+		#endif
+		
+		Rotamer oppositeRotamer;
+		oppositeRotamer.first = currentRotamer.second;
+		oppositeRotamer.second = currentRotamer.first;
+		Molecule secondStepMolecule;
+		copyMolecule(&bestLocalMolecule, &secondStepMolecule);
+
+		pointsToTrasform = getRotamerSuccessor(&bestLocalMolecule, oppositeRotamer, &rotamerSuccessor);
+		
+		#ifdef DEBUG
+		printf("\n%d points to trasform:  ", pointsToTrasform);
+		for(j=0; j<pointsToTrasform; j++)
+			printf("%d  ", rotamerSuccessor[j]);
+		#endif
+		
+		for (angle=0; angle<360; angle+=60)
+		{
+			createRotationMatrix(angle, molecule.atoms[currentRotamer.second], molecule.atoms[currentRotamer.first], &rotationMatrix);
+			printRotationMatrix(&rotationMatrix, angle);
+
+			Molecule moleculeRotated;
+
+			float score = rotateMolecule(&secondStepMolecule, &moleculeRotated, &rotationMatrix, &rotamerSuccessor, pointsToTrasform, &pocket);
+
+			#ifdef DEBUG
+			printMolecule(&moleculeRotated);
+			printf("\nWith score %f", score);
+			#endif
+			
+			if(score > bestLocalScore)
+			{
+				copyMolecule(&moleculeRotated, &bestLocalMolecule);
+				bestLocalScore = score;
+			}
+		}
+		#ifdef DEBUG
 		printf("\n\nAnd now the best molecule is ");
 		printMolecule(&bestLocalMolecule);
 		printf("\nWith best local score %f", bestLocalScore);
+		#endif
 		
 		if(bestLocalScore > bestScore[0])
 		{
@@ -390,6 +413,4 @@ kernel void doAllRotation(global Molecule * molecules, global Atom p[], global i
 			bestMoleculeIndex = idx;
 		}
 	}
-	printf("\n\nBest Score: %f", bestScore[0]);
-	printMolecule(&bestMolecule);
 }
