@@ -1,13 +1,11 @@
 // how to understand mol2 contents -> http://thegrantlab.org/bio3d/html/read.mol2.html
 
-#include "parser.hpp"
 #include <fstream>
 #include <iostream>
-#include <string>
 #include <cstring>
 #include <vector>
-#include <list>
 #include "structures_molecule.hpp"
+#include "parser.hpp"
 
 using namespace std;
 

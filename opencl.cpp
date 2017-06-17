@@ -1,12 +1,8 @@
 #include <CL/cl.hpp>
 #include <iostream>
 #include <fstream>
-#include <string>
-#include <memory>
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
-#include <math.h>
-#include <time.h>
 #include <sys/time.h>
 #include "structures_molecule.hpp"
 #include "parser.hpp"
