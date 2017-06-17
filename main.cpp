@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
         ("help, h", "Shows description of the options")
         ("file_name, f", po::value<string>(&file_name)->default_value("db.mol2"), "Set file name; if not setted <db.mol2> will be read.")
         ("number, n", po::value<string>(&n_string)->default_value("all"), "Set the number of the elements to be read; default value is <all>.")
-        ("rotation, r" po::value<int>(&angleIncrement)->default_value(60), "Set the step for the rotation; default value 60 deg.");
+        ("rotation, r", po::value<int>(&angleIncrement)->default_value(60), "Set the step for the rotation; default value 60 deg.");
     
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
