@@ -1,4 +1,3 @@
-#include "structures_molecule.hpp"
 #include <CL/cl.hpp>
 #include <iostream>
 #include <fstream>
@@ -6,10 +5,11 @@
 #include <memory>
 #include <boost/program_options.hpp>
 #include <boost/algorithm/string.hpp>
-#include "parser.hpp"
 #include <math.h>
 #include <time.h>
 #include <sys/time.h>
+#include "structures_molecule.hpp"
+#include "parser.hpp"
 
 #define SIZE_POCKET 5
 #define NAME_DIMENSION 13

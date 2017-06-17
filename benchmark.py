@@ -2,8 +2,8 @@ import subprocess
 from tempfile import TemporaryFile
 from xlwt import Workbook
 
-DB_DIMENSION = 2 #settare a 3961
-ripetition = 10
+DB_DIMENSION = 3961 #settare a 3961
+ripetition = 5
 
 delimitation = '-'*20
 exetime_str = "Execution time: "
@@ -101,9 +101,10 @@ def benchmark():
         thr_sh.write(0,1, M)
         thr_sh.write(0,2, OC)
         thr_sh.write(0,3, OG)
-
-        for n_mols in xrange(1, DB_DIMENSION+1):
-            
+        step = 1		
+        n_mols = 1
+        
+        while n_mols < DB_DIMENSION:    
             run_program(M, n_mols, log, time_sh, thr_sh)
             log.write('\n')
 
@@ -114,6 +115,17 @@ def benchmark():
 
             log.write(delimitation)
             log.write('\n')
+
+            if n_mols in range(1, 11):
+                step = 1
+            elif n_mols in range(1, 100):
+                step = 10
+            elif n_mols in range(100, 1000):
+                step = 100
+            elif n_mols > 1000:
+                step = 500
+
+            n_mols += step
 
         book.save('benchmark.xls')
         book.save(TemporaryFile())
