@@ -172,6 +172,7 @@ int main(int argc, char *argv[])
     string file_name = "NULL NAME";
     string n_string = "NULL NUMBER";
     int n = 0;
+	int angleIncrement = 60;
     
     po::options_description desc;
     
@@ -244,7 +245,7 @@ int main(int argc, char *argv[])
             Molecule bestLocalMolecule(molecule.getName());
 
             //cicles in which all rotations are performed 
-            for (int angle = 0; angle<360; angle += 120)
+            for (int angle = 0; angle<360; angle += angleIncrement)
             {
                 Molecule moleculeRotated = Molecule(molecule.getName());
                 float score = rotateMolecule(molecule, moleculeRotated, angle, rotamer, pocket);
@@ -258,7 +259,7 @@ int main(int argc, char *argv[])
 			Molecule secondStepMolecule(bestLocalMolecule.getName());
 			secondStepMolecule = copyMolecule(bestLocalMolecule);
             
-            for (int angle = 0; angle<360; angle += 120)
+            for (int angle = 0; angle<360; angle += angleIncrement)
             {
                 Molecule moleculeRotated = Molecule(bestLocalMolecule.getName());
                 float score = rotateMolecule(secondStepMolecule, moleculeRotated, angle, make_pair(rotamer.second, rotamer.first), pocket);
@@ -279,10 +280,10 @@ int main(int argc, char *argv[])
     //calculate the execution time from start to end and then the number of atoms processed per second
     end=clock();
     executionTime=((double)(end-start))/CLOCKS_PER_SEC;
-    cout << "\n\nThe best score is: " << std::to_string(bestScore);
-    cout << "\n\nBest molecule:\n " << bestMolecule.getName() << std::endl;
-    cout << "\n\nExecution time : "<< executionTime;
-    cout << "\n\nAtom processed : " << numberOfProcessedAtoms;
-    throughput= numberOfProcessedAtoms/executionTime;
-    cout << "\n\nThroughput : "<< throughput << "\n";
+	throughput= numberOfProcessedAtoms/executionTime;
+
+    cout << "The best score is: " << std::to_string(bestScore);
+    cout << "\nBest molecule: " << bestMolecule.getName();
+    cout << "\nExecution time: "<< executionTime;
+    cout << "\nThroughput: "<< throughput << "\n";
 }
