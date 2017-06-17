@@ -9,6 +9,7 @@
 #include "parser.hpp"
 #include <math.h>
 #include <time.h>
+#include <sys/time.h>
 
 #define SIZE_POCKET 5
 #define NAME_DIMENSION 13
@@ -38,49 +39,29 @@ void createPocket(Atom pocket[],float distance){
 		
 			vertex2D[i*SIZE_POCKET+j].latitude=i;
 			vertex2D[i*SIZE_POCKET+j].longitude=j;
-			
 		}
 	}
-	
-	   latAlfa= ((vertex2D[2*SIZE_POCKET].latitude)*PI)/180;
-	   latBeta= ((vertex2D[2*SIZE_POCKET+1].latitude)*PI)/180;
-	   lonAlfa= ((vertex2D[2*SIZE_POCKET].longitude)*PI)/180;
-	   lonBeta= ((vertex2D[2*SIZE_POCKET+1].longitude)*PI)/180;
-	   phi=fabs(lonAlfa-lonBeta); 
-	   
-	   float radius= distance/(acos(sin(latBeta)*sin(latAlfa)+cos(latBeta)*cos(latAlfa)*cos(phi)));
-	   
-	   //Transforms the bidimensional points of a mesh into coordinates of equidistant atoms in the sphere
-	   
-	   for(int i=0;i<SIZE_POCKET;i++){
-			for(int j=0;j<SIZE_POCKET;j++){
-				
-				pocket[i*SIZE_POCKET+j].x= radius*(sin(PI * vertex2D[i*SIZE_POCKET+j].latitude / 
-
-SIZE_POCKET) *cos(2*PI * vertex2D[i*SIZE_POCKET+j].longitude / SIZE_POCKET));
-				pocket[i*SIZE_POCKET+j].y= radius*(sin(PI * vertex2D[i*SIZE_POCKET+j].latitude / 
-
-SIZE_POCKET) *sin(2*PI * vertex2D[i*SIZE_POCKET+j].longitude / SIZE_POCKET));
-				pocket[i*SIZE_POCKET+j].z= radius*(cos(PI * vertex2D[i*SIZE_POCKET+j].latitude / 
-
-SIZE_POCKET));
-	  
-			}
-		}	  
-}
-
-double calculate_execution_time(cl_event &event){
- 	cl_ulong start, end;
- 	double totalTime;
- 	clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_END, sizeof(cl_ulong), &end, NULL);
- 	clGetEventProfilingInfo(event, CL_PROFILING_COMMAND_START, sizeof(cl_ulong), &start, NULL);
- 	totalTime = ((end - start) / 1.0e6);
- 	return totalTime;
+   latAlfa= ((vertex2D[2*SIZE_POCKET].latitude)*PI)/180;
+   latBeta= ((vertex2D[2*SIZE_POCKET+1].latitude)*PI)/180;
+   lonAlfa= ((vertex2D[2*SIZE_POCKET].longitude)*PI)/180;
+   lonBeta= ((vertex2D[2*SIZE_POCKET+1].longitude)*PI)/180;
+   phi=fabs(lonAlfa-lonBeta); 
+   
+   float radius= distance/(acos(sin(latBeta)*sin(latAlfa)+cos(latBeta)*cos(latAlfa)*cos(phi)));
+   
+   //Transforms the bidimensional points of a mesh into coordinates of equidistant atoms in the sphere
+   
+   for(int i=0;i<SIZE_POCKET;i++){
+		for(int j=0;j<SIZE_POCKET;j++){
+			pocket[i*SIZE_POCKET+j].x= radius*(sin(PI * vertex2D[i*SIZE_POCKET+j].latitude / SIZE_POCKET) *cos(2*PI * vertex2D[i*SIZE_POCKET+j].longitude / SIZE_POCKET));
+			pocket[i*SIZE_POCKET+j].y= radius*(sin(PI * vertex2D[i*SIZE_POCKET+j].latitude / SIZE_POCKET) *sin(2*PI * vertex2D[i*SIZE_POCKET+j].longitude / SIZE_POCKET));
+			pocket[i*SIZE_POCKET+j].z= radius*(cos(PI * vertex2D[i*SIZE_POCKET+j].latitude / SIZE_POCKET));
+		}
+	}	  
 }
 
 int main( int argc, char** argv ) {
 	
-
     int N_ELEMENTS;
     unsigned int platform_id=0, device_id=0;
 
@@ -89,7 +70,7 @@ int main( int argc, char** argv ) {
 	float* score = new float[1];
 	int* bestMolecule = new int[1];
 
-	cl_event device_execution;
+	struct timeval start, end;
 	
     string file_name = "NULL_NAME";
     string n_string = "NULL_NUMBER";
@@ -114,19 +95,14 @@ int main( int argc, char** argv ) {
         return 0;
     }
     
-    
     if (file_name.compare("db.mol2") == 0 && n_string.compare("all") == 0)
         N_ELEMENTS = DB_DIMENSION;
     else if(n_string.compare("all") == 0)
         N_ELEMENTS = getDimension(file_name);
     else
         N_ELEMENTS = stoi(n_string);
-
     
-	//std::unique_ptr<Molecule[]> A(new Molecule[N_ELEMENTS]);
 	Molecule* molecules = new Molecule[N_ELEMENTS];
-    //molecules[0] = m1;
-    
     molecules = parseFile(file_name, N_ELEMENTS);
 
 	// Query for platforms
@@ -175,7 +151,7 @@ int main( int argc, char** argv ) {
 	// Build the program for the devices
 	program.build(devices);
 
-
+	gettimeofday(&start, NULL);
 		
 	// Make kernel
 	cl::Kernel doRotation_kernel(program, "doAllRotation");
@@ -189,28 +165,24 @@ int main( int argc, char** argv ) {
 	// Execute the kernel
 	cl::NDRange global( N_ELEMENTS );
 	cl::NDRange local( 1 );
-	my_command_queue = clCreateCommandQueue(my_context, devices[0], CL_QUEUE_PROFILING_ENABLE, &ci_error);
-	clEnqueueNDRangeKernel(queue, doRotation_kernel,1, 0 ,globalsize, localsize, 0, 0, &device_execution);
 	
 	queue.enqueueNDRangeKernel( doRotation_kernel, cl::NullRange, global, local );
 	queue.enqueueReadBuffer( bufferBestScore, CL_TRUE, 0, sizeof(float), score);
 	queue.enqueueReadBuffer( bufferBestMolecule, CL_TRUE, 0, sizeof(int), bestMolecule);
 
-	//string name = str(molecules[*bestMolecule].name);
-	std::cout << "\n Best Molecule:  " << molecules[*bestMolecule].name;
-	std::cout << "\n Best score:  " << std::to_string(score[0]);
-	
-	int numberOfProcessedAtoms=0;
-	for (int i=0; i< N_ELEMENTS ; i++){    
-	    	
-		numberOfProcessedAtoms += molecules[i].numberOfAtoms;
-	
-	}
-	
-	float executionTime=calculate_execution_time(device_execution);
-	cout << "\n\nExecution time : "<< executionTime;
-	float throughput= numberOfProcessedAtoms/executionTime;
-	cout << "\n\nThroughput : "<< throughput;
-	return( EXIT_SUCCESS );
+	gettimeofday(&end, NULL);	
 
+	float executionTime = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;	
+	int numberOfProcessedAtoms=0;
+	for (int i=0; i< N_ELEMENTS ; i++)   
+		numberOfProcessedAtoms += molecules[i].numberOfAtoms;
+
+	float throughput= numberOfProcessedAtoms/executionTime;
+
+	cout << "\nBest Molecule:  " << molecules[*bestMolecule].name;
+	cout << "\nBest score:  " << std::to_string(score[0]);
+	cout << "\nExecution time: "<< executionTime;
+	cout << "\nThroughput: "<< throughput;
+
+	return( EXIT_SUCCESS );
 }
