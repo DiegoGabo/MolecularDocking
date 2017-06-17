@@ -31,19 +31,19 @@ def run_program(name, n, l, ti_sh, th_sh):
             r = ""
             n_opt = "--n"
             n_opt_value = str(n)
-            if program = M:
+            dev_opt = "--d"
+            dev_opt_value = ""
+            if program == M:
                 r = "./main"
                 subprocess.call([r, n_opt, n_opt_value], stdout=output, universal_newlines=True)
             elif program == OC:
                 r = "./opencl"
-                dev_opt = "--d"
                 dev_opt_value = "cpu"
-                subprocess.call([r, n_opt, n_opt_value, dev_opt, dev_opt_val], stdout=output, universal_newlines=True)
+                subprocess.call([r, n_opt, n_opt_value, dev_opt, dev_opt_value], stdout=output, universal_newlines=True)
             elif program == OG:
                 r = "./opencl"
-                dev_opt = "--d"
-                dev_opt_val = "gpu"
-                subprocess.call([r, n_opt, n_opt_value, dev_opt, dev_opt_val], stdout=output, universal_newlines=True)
+                dev_opt_value = "gpu"
+                subprocess.call([r, n_opt, n_opt_value, dev_opt, dev_opt_value], stdout=output, universal_newlines=True)
 
         with open("output.txt", 'r') as output:
             for line in output.read().split('\n'):
