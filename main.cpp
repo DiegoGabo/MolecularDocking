@@ -7,8 +7,9 @@
 #include <math.h>
 #include "structures_molecule.hpp"
 #include "structures_pocket.hpp"
+#include <omp.h>
 #include "parser.hpp"
-#include <time.h>
+#include <sys/time.h>
 
 #define DB_DIMENSION 3961
 
@@ -173,6 +174,7 @@ int main(int argc, char *argv[])
     string n_string = "NULL NUMBER";
     int n = 0;
 	int angleIncrement = 0;
+	struct timeval start, end;
     
     po::options_description desc;
     
@@ -212,12 +214,12 @@ int main(int argc, char *argv[])
     float throughput;
     
     //for calculating execution time 
-    clock_t start,end;
-    double executionTime;
-    start=clock();
-	
-    for (Molecule molecule : molecules)
+    gettimeofday(&start, NULL);
+
+	#pragma omp parallel for simd
+    for (int i=0; i < n-1; i++)
     {
+		Molecule molecule = molecules.at(i);
     	numberOfProcessedAtoms+= molecule.getAtoms().size();
     	molecule.centre();
 
@@ -279,8 +281,9 @@ int main(int argc, char *argv[])
         } 
     }
     //calculate the execution time from start to end and then the number of atoms processed per second
-    end=clock();
-    executionTime=((double)(end-start))/CLOCKS_PER_SEC;
+   	gettimeofday(&end, NULL);	
+
+    float executionTime = ((end.tv_sec  - start.tv_sec) * 1000000u + end.tv_usec - start.tv_usec) / 1.e6;	
 	throughput= numberOfProcessedAtoms/executionTime;
 
     cout << "The best score is: " << std::to_string(bestScore);
