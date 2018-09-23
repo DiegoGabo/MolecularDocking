@@ -1,5 +1,5 @@
 
-##General Description
+## General Description
 This project was done at Politecnico di Milano within the European project ANTAREX in a group of 3 people.
 I developed in c++ an application which emulates the workload of the geometric approach to molecular
 docking, a method which predicts the preferred orientation of one molecule to a second. I wrote three versions
