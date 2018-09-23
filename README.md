@@ -7,4 +7,4 @@ of the same program: not parallelized, parallelized with OpenMP and parallelized
 was quoted on the acknowledgments of the following paper: “An easy-to-use library for dynamic generation
 and invocation of multiple code versions”.
 
-For a description of the project read https://github.com/DiegoGabo/MolecularDocking/blob/master/Presentation%20Project%20ACA.pdf
+For a description of the project read https://github.com/DiegoGabo/MolecularDocking/blob/master/doc/Presentation%20Project%20ACA.pdf
